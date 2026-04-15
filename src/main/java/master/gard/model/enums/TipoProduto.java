@@ -10,7 +10,6 @@ public enum TipoProduto {
     LCA("Letra de Crédito do Agronegócio"),
     TESOURO_DIRETO_SELIC("Tesouro Direto Selic"),
     FIA("Fundo de Investimento em Ações"),
-    FIM("Fundo de Investimento Multimercado"),
     FII("Fundo de Investimento Imobiliário"),
     CRI("Certificado de Recebíveis Imobiliários"),
     CRA("Certificado de Recebíveis do Agronegócio"),
@@ -25,7 +24,7 @@ public enum TipoProduto {
     public boolean possuiVencimento() {
         return switch (this) {
             case CDB, LCI, LCA, TESOURO_DIRETO_SELIC, CRI, CRA, DEBENTURE -> true;
-            case FIA, FIM, FII -> false;
+            case FIA, FII -> false;
         };
     }
 
