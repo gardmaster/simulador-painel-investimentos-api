@@ -2,14 +2,15 @@ package master.gard.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import master.gard.model.enums.PerfilRisco;
+import master.gard.model.enums.ProdutoRisco;
+import master.gard.model.enums.TipoProduto;
 
 import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "clientes")
-public class Cliente {
+@Table(name = "produtos")
+public class Produto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,15 +19,19 @@ public class Cliente {
     @Column(name = "nome", nullable = false)
     private String nome;
 
-    @Column(name = "documento", nullable = false, unique = true)
-    private String documento;
-
-    @Column(name = "email", nullable = false, unique = true)
-    private String email;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_produto", nullable = false)
+    private TipoProduto tipoProduto;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "perfil_risco", nullable = false)
-    private PerfilRisco perfilRisco;
+    @Column(name = "produto_risco", nullable = false)
+    private ProdutoRisco produtoRisco;
+
+    @Column(name = "rentabilidade_mensal", nullable = false)
+    private Double rentabilidadeMensal;
+
+    @Column(name = "data_vencimento", nullable = true)
+    private LocalDateTime dataVencimento;
 
     @Column(name = "data_criacao", nullable = false)
     private LocalDateTime dataCriacao;
@@ -34,7 +39,7 @@ public class Cliente {
     @Column(name = "data_atualizacao", nullable = false)
     private LocalDateTime dataAtualizacao;
 
-    private Cliente() {
+    private Produto() {
     }
 
     @PrePersist
@@ -47,4 +52,5 @@ public class Cliente {
     public void preUpdate() {
         this.dataAtualizacao = LocalDateTime.now();
     }
+
 }
