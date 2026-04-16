@@ -34,9 +34,6 @@ public class Cliente {
     @Column(name = "data_atualizacao", nullable = false)
     private LocalDateTime dataAtualizacao;
 
-    private Cliente() {
-    }
-
     @PrePersist
     public void prePersist() {
         this.dataCriacao = LocalDateTime.now();
