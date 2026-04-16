@@ -34,4 +34,10 @@ public class ClienteResource {
     public Response cadastrarCliente(@Valid @NotNull ClienteRequest request) {
         return service.cadastrarCliente(request);
     }
+
+    @PUT
+    @Path("/{id}")
+    public Response atualizarCliente(@PathParam("id") Long id, @Valid @NotNull ClienteRequest request) {
+        return service.atualizarCliente(id, request);
+    }
 }

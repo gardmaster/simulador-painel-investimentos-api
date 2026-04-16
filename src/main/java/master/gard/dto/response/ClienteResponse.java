@@ -3,6 +3,7 @@ package master.gard.dto.response;
 import master.gard.model.Cliente;
 
 public record ClienteResponse(
+        Long id,
         String nome,
         String email,
         String documento,
@@ -10,6 +11,7 @@ public record ClienteResponse(
 ) {
     public static ClienteResponse fromEntity(Cliente cliente) {
         return new ClienteResponse(
+                cliente.getId(),
                 cliente.getNome(),
                 cliente.getEmail(),
                 formatarCpfCnpj(cliente.getDocumento()),

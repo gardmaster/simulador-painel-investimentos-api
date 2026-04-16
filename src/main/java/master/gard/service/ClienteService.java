@@ -44,9 +44,30 @@ public class ClienteService {
         return Response.status(Response.Status.CREATED).entity(ClienteResponse.fromEntity(cliente)).build();
     }
 
+    @Transactional
+    public Response atualizarCliente(Long id, ClienteRequest request) {
+        Cliente clienteExistente = validarClienteExistente(id);
+        validarDocumentoCadastradoParaOutroCliente(request.documento(), id);
+        validarEmailCadastradoParaOutroCliente(request.email(), id);
+
+        clienteExistente.setDocumento(request.documento());
+        clienteExistente.setEmail(request.email());
+        clienteExistente.setNome(request.nome());
+        clienteExistente.setPerfilRisco(request.perfilRisco());
+
+        clienteRepository.persist(clienteExistente);
+        return Response.ok(ClienteResponse.fromEntity(clienteExistente)).build();
+    }
+
     private void validarDocumentoNaoCadastrado(String documento) {
         if (clienteRepository.isDocumentoExistente(documento)) {
             throw new WebApplicationException("Documento já cadastrado", Response.Status.BAD_REQUEST);
+        }
+    }
+
+    private void validarDocumentoCadastradoParaOutroCliente(String documento, Long id) {
+        if (clienteRepository.isDocumentoCadastradoParaOutroCliente(documento, id)) {
+            throw new WebApplicationException("Documento já cadastrado para outro cliente", Response.Status.BAD_REQUEST);
         }
     }
 
@@ -56,4 +77,14 @@ public class ClienteService {
         }
     }
 
+    private void validarEmailCadastradoParaOutroCliente(String email, Long id) {
+        if (clienteRepository.isEmailCadastradoParaOutroCliente(email, id)) {
+            throw new WebApplicationException("Email já cadastrado para outro cliente", Response.Status.BAD_REQUEST);
+        }
+    }
+
+    private Cliente validarClienteExistente(Long id) {
+        return clienteRepository.findByIdOptional(id)
+                .orElseThrow(() -> new WebApplicationException("Cliente não encontrado com ID: " + id, Response.Status.NOT_FOUND));
+    }
 }
