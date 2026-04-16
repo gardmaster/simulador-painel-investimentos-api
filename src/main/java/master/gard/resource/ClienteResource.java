@@ -1,8 +1,11 @@
 package master.gard.resource;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import master.gard.dto.request.ClienteRequest;
 import master.gard.service.ClienteService;
 
 @Path("api/v1/clientes")
@@ -27,4 +30,8 @@ public class ClienteResource {
         return Response.ok(service.recuperarCliente(id)).build();
     }
 
+    @POST
+    public Response cadastrarCliente(@Valid @NotNull ClienteRequest request) {
+        return service.cadastrarCliente(request);
+    }
 }
