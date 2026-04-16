@@ -1,9 +1,6 @@
 package master.gard.resource;
 
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import master.gard.service.ClienteService;
@@ -22,6 +19,12 @@ public class ClienteResource {
     @GET
     public Response listarClientes() {
         return Response.ok(service.listarClientes()).build();
+    }
+
+    @GET
+    @Path("/{id}")
+    public Response recuperarClientePorId(@PathParam("id") Long id) {
+        return Response.ok(service.recuperarCliente(id)).build();
     }
 
 }

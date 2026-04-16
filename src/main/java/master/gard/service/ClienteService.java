@@ -21,4 +21,10 @@ public class ClienteService {
                 .map(ClienteResponse::fromEntity)
                 .toList();
     }
+
+    public ClienteResponse recuperarCliente(Long id) {
+        return clienteRepository.findByIdOptional(id).map(ClienteResponse::fromEntity)
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado com ID: " + id));
+    }
+
 }

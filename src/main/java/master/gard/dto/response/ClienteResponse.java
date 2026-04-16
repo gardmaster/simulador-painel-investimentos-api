@@ -6,7 +6,7 @@ public record ClienteResponse(
         Long id,
         String nome,
         String email,
-        String cpf,
+        String documento,
         String perfilRisco
 ) {
     public static ClienteResponse fromEntity(Cliente cliente) {
@@ -14,21 +14,19 @@ public record ClienteResponse(
                 cliente.getId(),
                 cliente.getNome(),
                 cliente.getEmail(),
-                esconderCpf(cliente.getDocumento()),
+                formatarCpfCnpj(cliente.getDocumento()),
                 cliente.getPerfilRisco().name()
         );
     }
 
-    private static String esconderCpf(String cpf) {
-        if (cpf != null && cpf.length() == 11) {
-            String cpfFormatado = formatarCpf(cpf);
-            return "***" + cpfFormatado.substring(3, 11) + "-**";
+    // TODO: Melhorar logica de formatação de documento e considerar cnpj alfa
+    private static String formatarCpfCnpj(String documento) {
+        if (documento != null && documento.length() == 11) {
+            return documento.replaceAll("(\\d{3})(\\d{3})(\\d{3})(\\d{2})", "$1.$2.$3-$4");
+        } else if (documento != null && documento.length() == 14) {
+            return documento.replaceAll("(\\d{2})(\\d{3})(\\d{3})(\\d{4})(\\d{2})", "$1.$2.$3/$4-$5");
         }
-        return cpf;
-    }
-
-    private static String formatarCpf(String cpf) {
-        return cpf.replaceAll("(\\d{3})(\\d{3})(\\d{3})(\\d{2})", "$1.$2.$3-$4");
+        return documento;
     }
 }
 
