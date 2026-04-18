@@ -6,6 +6,7 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import master.gard.dto.request.ClienteRequest;
 import master.gard.dto.response.ClienteResponse;
+import master.gard.exception.ClienteNaoEncontradoException;
 import master.gard.model.Cliente;
 import master.gard.repository.ClienteRepository;
 
@@ -31,7 +32,7 @@ public class ClienteService {
     @Transactional
     public ClienteResponse recuperarCliente(Long id) {
         return clienteRepository.findByIdOptional(id).map(ClienteResponse::fromEntity)
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado com ID: " + id));
+                .orElseThrow(() -> new ClienteNaoEncontradoException("Cliente não encontrado com ID: " + id));
     }
 
     @Transactional
