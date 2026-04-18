@@ -7,6 +7,7 @@ import jakarta.ws.rs.core.Response;
 import master.gard.dto.request.ClienteRequest;
 import master.gard.dto.response.ClienteResponse;
 import master.gard.exception.ClienteNaoEncontradoException;
+import master.gard.exception.DocumentoExistenteException;
 import master.gard.model.Cliente;
 import master.gard.repository.ClienteRepository;
 
@@ -37,8 +38,8 @@ public class ClienteService {
 
     @Transactional
     public Response cadastrarCliente(ClienteRequest request) {
-        validarDocumentoNaoCadastrado(request.documento());
-        validarEmailNaoCadastrado(request.email());
+        validarDocumentoCadastrado(request.documento());
+        validarEmailCadastrado(request.email());
 
         Cliente cliente = ClienteRequest.toEntity(request);
         clienteRepository.persist(cliente);
@@ -60,19 +61,19 @@ public class ClienteService {
         return Response.ok(ClienteResponse.fromEntity(clienteExistente)).build();
     }
 
-    private void validarDocumentoNaoCadastrado(String documento) {
+    private void validarDocumentoCadastrado(String documento) {
         if (clienteRepository.isDocumentoExistente(documento)) {
-            throw new WebApplicationException("Documento já cadastrado", Response.Status.BAD_REQUEST);
+            throw new DocumentoExistenteException();
         }
     }
 
     private void validarDocumentoCadastradoParaOutroCliente(String documento, Long id) {
         if (clienteRepository.isDocumentoCadastradoParaOutroCliente(documento, id)) {
-            throw new WebApplicationException("Documento já cadastrado para outro cliente", Response.Status.BAD_REQUEST);
+            throw new DocumentoExistenteException();
         }
     }
 
-    private void validarEmailNaoCadastrado(String email) {
+    private void validarEmailCadastrado(String email) {
         if (clienteRepository.isEmailExistente(email)) {
             throw new WebApplicationException("Email já cadastrado", Response.Status.BAD_REQUEST);
         }
