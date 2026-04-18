@@ -8,31 +8,30 @@ import jakarta.ws.rs.ext.Provider;
 import master.gard.config.MessageKeys;
 import master.gard.config.Messages;
 import master.gard.dto.exception.ProblemDetails;
-import master.gard.exception.ClienteNaoEncontradoException;
+import master.gard.exception.EmailExistenteException;
 
 @Provider
-public class ClienteNaoEncontradoExceptionMapper implements ExceptionMapper<ClienteNaoEncontradoException> {
+public class EmailExistenteExceptionMapper implements ExceptionMapper<EmailExistenteException> {
 
     @Context
     UriInfo uriInfo;
 
     private final Messages msg;
 
-    public ClienteNaoEncontradoExceptionMapper(Messages msg) {
+    public EmailExistenteExceptionMapper(Messages msg) {
         this.msg = msg;
     }
 
     @Override
-    public Response toResponse(ClienteNaoEncontradoException exception) {
-
+    public Response toResponse(EmailExistenteException exception) {
         ProblemDetails problemDetails = ProblemDetails.builder()
-                .status(Response.Status.NOT_FOUND.getStatusCode())
-                .title(msg.get(MessageKeys.CLIENTE_NAO_ENCONTRADO_TITLE))
-                .detail(msg.format(MessageKeys.CLIENTE_NAO_ENCONTRADO_DETAIL, exception.getClienteId()))
+                .status(Response.Status.BAD_REQUEST.getStatusCode())
+                .title(msg.get(MessageKeys.CLIENTE_EMAIL_DUPLICADO_TITLE))
+                .detail(msg.get(MessageKeys.CLIENTE_EMAIL_DUPLICADO_DETAIL))
                 .instance(uriInfo != null ? uriInfo.getRequestUri().toString() : "")
                 .build();
 
-        return Response.status(Response.Status.NOT_FOUND)
+        return Response.status(Response.Status.BAD_REQUEST)
                 .entity(problemDetails)
                 .build();
     }

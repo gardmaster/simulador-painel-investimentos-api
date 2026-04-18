@@ -11,5 +11,6 @@ public final class MessageKeys {
     public static final String CLIENTE_DOCUMENTO_DUPLICADO_DETAIL = "error.cliente.documento-duplicado.detail";
 
     public static final String CLIENTE_EMAIL_DUPLICADO_TITLE = "error.cliente.email-duplicado.title";
+    public static final String CLIENTE_EMAIL_DUPLICADO_DETAIL = "error.cliente.email-duplicado.detail";
 
 }
