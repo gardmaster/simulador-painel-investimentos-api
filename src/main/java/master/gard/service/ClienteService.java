@@ -32,7 +32,7 @@ public class ClienteService {
     @Transactional
     public ClienteResponse recuperarCliente(Long id) {
         return clienteRepository.findByIdOptional(id).map(ClienteResponse::fromEntity)
-                .orElseThrow(() -> new ClienteNaoEncontradoException("Cliente não encontrado com ID: " + id));
+                .orElseThrow(() -> new ClienteNaoEncontradoException(id));
     }
 
     @Transactional

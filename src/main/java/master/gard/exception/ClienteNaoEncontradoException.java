@@ -1,7 +1,14 @@
 package master.gard.exception;
 
+import lombok.Getter;
+
+@Getter
 public class ClienteNaoEncontradoException extends RuntimeException {
-    public ClienteNaoEncontradoException(String message) {
-        super(message);
+
+    private final Long clienteId;
+
+    public ClienteNaoEncontradoException(Long clienteId) {
+        this.clienteId = clienteId;
     }
+
 }

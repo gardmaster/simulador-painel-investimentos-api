@@ -1,10 +1,13 @@
 package master.gard.exception.mapper;
 
+import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
+import master.gard.config.MessageKeys;
+import master.gard.config.Messages;
 import master.gard.dto.exception.ProblemDetails;
 import master.gard.exception.ClienteNaoEncontradoException;
 
@@ -14,13 +17,19 @@ public class ClienteNaoEncontradoExceptionMapper implements ExceptionMapper<Clie
     @Context
     UriInfo uriInfo;
 
+    private final Messages msg;
+
+    public ClienteNaoEncontradoExceptionMapper(Messages msg) {
+        this.msg = msg;
+    }
+
     @Override
     public Response toResponse(ClienteNaoEncontradoException exception) {
 
         ProblemDetails problemDetails = ProblemDetails.builder()
                 .status(Response.Status.NOT_FOUND.getStatusCode())
-                .title("Cliente Não Encontrado")
-                .detail(exception.getMessage())
+                .title(msg.get(MessageKeys.CLIENTE_NAO_ENCONTRADO_TITLE))
+                .detail(msg.format(MessageKeys.CLIENTE_NAO_ENCONTRADO_DETAIL, exception.getClienteId()))
                 .instance(uriInfo != null ? uriInfo.getRequestUri().toString() : "")
                 .build();
 
