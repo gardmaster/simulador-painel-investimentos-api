@@ -2,10 +2,12 @@ package master.gard.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import master.gard.dto.request.ClienteRequest;
 import master.gard.dto.response.ClienteResponse;
+import master.gard.exception.ClienteNaoEncontradoException;
+import master.gard.exception.DocumentoExistenteException;
+import master.gard.exception.EmailExistenteException;
 import master.gard.model.Cliente;
 import master.gard.repository.ClienteRepository;
 
@@ -31,13 +33,13 @@ public class ClienteService {
     @Transactional
     public ClienteResponse recuperarCliente(Long id) {
         return clienteRepository.findByIdOptional(id).map(ClienteResponse::fromEntity)
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado com ID: " + id));
+                .orElseThrow(() -> new ClienteNaoEncontradoException(id));
     }
 
     @Transactional
     public Response cadastrarCliente(ClienteRequest request) {
-        validarDocumentoNaoCadastrado(request.documento());
-        validarEmailNaoCadastrado(request.email());
+        validarDocumentoCadastrado(request.documento());
+        validarEmailCadastrado(request.email());
 
         Cliente cliente = ClienteRequest.toEntity(request);
         clienteRepository.persist(cliente);
@@ -59,32 +61,33 @@ public class ClienteService {
         return Response.ok(ClienteResponse.fromEntity(clienteExistente)).build();
     }
 
-    private void validarDocumentoNaoCadastrado(String documento) {
+    private void validarDocumentoCadastrado(String documento) {
         if (clienteRepository.isDocumentoExistente(documento)) {
-            throw new WebApplicationException("Documento já cadastrado", Response.Status.BAD_REQUEST);
+            throw new DocumentoExistenteException();
         }
     }
 
     private void validarDocumentoCadastradoParaOutroCliente(String documento, Long id) {
         if (clienteRepository.isDocumentoCadastradoParaOutroCliente(documento, id)) {
-            throw new WebApplicationException("Documento já cadastrado para outro cliente", Response.Status.BAD_REQUEST);
+            throw new DocumentoExistenteException();
         }
     }
 
-    private void validarEmailNaoCadastrado(String email) {
+    private void validarEmailCadastrado(String email) {
         if (clienteRepository.isEmailExistente(email)) {
-            throw new WebApplicationException("Email já cadastrado", Response.Status.BAD_REQUEST);
+            throw new EmailExistenteException();
         }
     }
 
     private void validarEmailCadastradoParaOutroCliente(String email, Long id) {
         if (clienteRepository.isEmailCadastradoParaOutroCliente(email, id)) {
-            throw new WebApplicationException("Email já cadastrado para outro cliente", Response.Status.BAD_REQUEST);
+            throw new EmailExistenteException();
         }
     }
 
     private Cliente validarClienteExistente(Long id) {
         return clienteRepository.findByIdOptional(id)
-                .orElseThrow(() -> new WebApplicationException("Cliente não encontrado com ID: " + id, Response.Status.NOT_FOUND));
+                .orElseThrow(() -> new ClienteNaoEncontradoException(id));
     }
+
 }
