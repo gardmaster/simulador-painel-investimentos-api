@@ -13,4 +13,7 @@ public final class MessageKeys {
     public static final String CLIENTE_EMAIL_DUPLICADO_TITLE = "error.cliente.email-duplicado.title";
     public static final String CLIENTE_EMAIL_DUPLICADO_DETAIL = "error.cliente.email-duplicado.detail";
 
+    public static final String CAMPOS_INVALIDOS_TITLE = "error.campos-invalidos.title";
+    public static final String CAMPOS_INVALIDOS_DETAIL = "error.campos-invalidos.detail";
+
 }
