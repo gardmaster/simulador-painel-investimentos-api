@@ -10,7 +10,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 @OpenAPIDefinition(
         info = @Info(
                 title = "Painel de Investimentos API",
-                version = "1.0.0",
+                version = "1.0",
                 description = """
                         API RESTful para simulação de investimentos baseado em perfil dinâmico do investidor.
                         

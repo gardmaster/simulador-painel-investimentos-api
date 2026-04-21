@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import java.util.List;
@@ -35,15 +34,16 @@ public class ProblemDetails {
     @Schema(description = "URI da requisição que causou o problema", examples = "http://localhost:8080/api/v1/clientes")
     private String instance;
 
-    @Schema(description = "Mensagem de validação para cada campo inválido",
+    @Schema(description = "Mensagem de validação por campo inválido",
+            additionalProperties = Schema.True.class,
             examples =
-            """
-            {
-                "nome": ["O campo 'nome' é obrigatório."],
-                "email": ["O campo 'email' deve ser um endereço de e-mail válido."],
-                "documento": ["O campo 'documento' deve ser um CPF ou CNPJ válido."]
-            }
-            """)
+                    """
+                            {
+                                "nome": ["O campo 'nome' é obrigatório."],
+                                "email": ["O campo 'email' deve ser um endereço de e-mail único e válido."],
+                                "documento": ["O campo 'documento' deve ser um CPF ou CNPJ único e válido."]
+                            }
+                            """)
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private Map<String, List<String>> violations;
 }
