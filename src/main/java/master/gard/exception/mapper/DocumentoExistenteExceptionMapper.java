@@ -25,13 +25,13 @@ public class DocumentoExistenteExceptionMapper implements ExceptionMapper<Docume
     @Override
     public Response toResponse(DocumentoExistenteException exception) {
         ProblemDetails problemDetails = ProblemDetails.builder()
-                .status(Response.Status.BAD_REQUEST.getStatusCode())
+                .status(Response.Status.CONFLICT.getStatusCode())
                 .title(msg.get(MessageKeys.CLIENTE_DOCUMENTO_DUPLICADO_TITLE))
                 .detail(msg.get(MessageKeys.CLIENTE_DOCUMENTO_DUPLICADO_DETAIL))
                 .instance(uriInfo != null ? uriInfo.getRequestUri().toString() : "")
                 .build();
 
-        return Response.status(Response.Status.BAD_REQUEST)
+        return Response.status(Response.Status.CONFLICT)
                 .entity(problemDetails)
                 .build();
     }
