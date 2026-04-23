@@ -9,9 +9,12 @@ import master.gard.config.MessageKeys;
 import master.gard.config.Messages;
 import master.gard.dto.exception.ProblemDetails;
 import master.gard.exception.EmailExistenteException;
+import org.jboss.logging.Logger;
 
 @Provider
 public class EmailExistenteExceptionMapper implements ExceptionMapper<EmailExistenteException> {
+
+    private static final Logger LOG = Logger.getLogger(EmailExistenteExceptionMapper.class);
 
     @Context
     UriInfo uriInfo;
@@ -24,6 +27,8 @@ public class EmailExistenteExceptionMapper implements ExceptionMapper<EmailExist
 
     @Override
     public Response toResponse(EmailExistenteException exception) {
+        LOG.warnf("Email duplicado encontrado: %s", exception.getEmail());
+
         ProblemDetails problemDetails = ProblemDetails.builder()
                 .status(Response.Status.CONFLICT.getStatusCode())
                 .title(msg.get(MessageKeys.CLIENTE_EMAIL_DUPLICADO_TITLE))

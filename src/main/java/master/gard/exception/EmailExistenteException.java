@@ -1,13 +1,14 @@
 package master.gard.exception;
 
+import lombok.Getter;
+
+@Getter
 public class EmailExistenteException extends RuntimeException {
 
-    public EmailExistenteException() {
-        super();
-    }
+    private final String email;
 
-    public EmailExistenteException(String message) {
-        super(message);
+    public EmailExistenteException(String email) {
+        this.email = email;
     }
 
 }
