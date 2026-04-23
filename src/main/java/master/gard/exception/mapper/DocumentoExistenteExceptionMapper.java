@@ -1,5 +1,6 @@
 package master.gard.exception.mapper;
 
+import io.quarkus.logging.Log;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
@@ -9,9 +10,12 @@ import master.gard.config.MessageKeys;
 import master.gard.config.Messages;
 import master.gard.dto.exception.ProblemDetails;
 import master.gard.exception.DocumentoExistenteException;
+import org.jboss.logging.Logger;
 
 @Provider
 public class DocumentoExistenteExceptionMapper implements ExceptionMapper<DocumentoExistenteException> {
+
+    private static final Logger LOG = Logger.getLogger(DocumentoExistenteExceptionMapper.class);
 
     @Context
     UriInfo uriInfo;
@@ -24,6 +28,8 @@ public class DocumentoExistenteExceptionMapper implements ExceptionMapper<Docume
 
     @Override
     public Response toResponse(DocumentoExistenteException exception) {
+        LOG.warnf("Documento duplicado encontrado: %s", exception.getDocumento());
+
         ProblemDetails problemDetails = ProblemDetails.builder()
                 .status(Response.Status.CONFLICT.getStatusCode())
                 .title(msg.get(MessageKeys.CLIENTE_DOCUMENTO_DUPLICADO_TITLE))

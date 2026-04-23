@@ -1,5 +1,6 @@
 package master.gard.exception.mapper;
 
+import io.quarkus.logging.Log;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.core.Context;
@@ -10,6 +11,7 @@ import jakarta.ws.rs.ext.Provider;
 import master.gard.config.MessageKeys;
 import master.gard.config.Messages;
 import master.gard.dto.exception.ProblemDetails;
+import org.jboss.logging.Logger;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,6 +20,8 @@ import java.util.stream.Collectors;
 
 @Provider
 public class ConstraintViolationExceptionMapper implements ExceptionMapper<ConstraintViolationException> {
+
+    private static final Logger LOG = Logger.getLogger(ConstraintViolationExceptionMapper.class);
 
     @Context
     UriInfo uriInfo;
@@ -30,6 +34,8 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 
     @Override
     public Response toResponse(jakarta.validation.ConstraintViolationException exception) {
+        LOG.warnf("Validação falhou: %d violações encontradas", exception.getConstraintViolations().size());
+
         Map<String, List<String>> violations = exception.getConstraintViolations().stream()
                 .collect(Collectors.groupingBy(
                         cv -> {
