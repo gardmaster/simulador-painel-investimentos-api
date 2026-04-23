@@ -1,5 +1,6 @@
 package master.gard.resource;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
@@ -25,6 +26,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 public interface ClienteResourceI {
 
     @GET
+    @RolesAllowed("admin")
     @Operation(
             summary = "Listar todos os clientes",
             description = "Retorna uma lista com todos os clientes cadastrados no sistema."
@@ -40,6 +42,7 @@ public interface ClienteResourceI {
     Response listarClientes();
 
     @GET
+    @RolesAllowed({"admin", "user"})
     @Path("/{id}")
     @Operation(
             summary = "Obter cliente por ID",
@@ -68,6 +71,7 @@ public interface ClienteResourceI {
     );
 
     @POST
+    @RolesAllowed({"admin", "user"})
     @Operation(
             summary = "Cadastrar novo cliente",
             description = "Permite cadastrar um novo cliente no sistema."
@@ -129,6 +133,7 @@ public interface ClienteResourceI {
             @NotNull @Valid ClienteRequest request);
 
     @PUT
+    @RolesAllowed({"admin", "user"})
     @Path("/{id}")
     @Operation(
             summary = "Atualizar cliente existente",
