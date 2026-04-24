@@ -16,4 +16,6 @@ public final class MessageKeys {
     public static final String CAMPOS_INVALIDOS_TITLE = "error.campos-invalidos.title";
     public static final String CAMPOS_INVALIDOS_DETAIL = "error.campos-invalidos.detail";
 
+    public static final String CLAIM_SUB_INEXISTENTE_TITLE = "error.claim-sub-inexistente.title";
+    public static final String CLAIM_SUB_INEXISTENTE_DETAIL = "error.claim-sub-inexistente.detail";
 }
