@@ -56,8 +56,11 @@ public class ClienteService {
         validarEmailCadastrado(request.email());
         LOG.infof("Documento e email validados para cliente: %s", request.nome());
 
+        LOG.info("Recuperando claim 'sub' do token JWT para associar ao cliente");
+        String authUserId = jwtUtil.getSubject();
 
         Cliente cliente = ClienteRequest.toEntity(request);
+        cliente.setAuthUserId(authUserId);
         clienteRepository.persist(cliente);
         LOG.infof("Cliente persistido com ID: %d", cliente.getId());
 

@@ -633,7 +633,14 @@
     "enabled" : true,
     "createdTimestamp" : 1777068370243,
     "totp" : false,
-    "credentials" : [ ],
+    "credentials" : [ {
+      "id" : "676e2559-f265-4d40-b4dc-e5ab23ce15ea",
+      "type" : "password",
+      "userLabel" : "My password",
+      "createdDate" : 1777072076369,
+      "secretData" : "{\"value\":\"gNQFTCw8aOdML4KiAIBV+0ut5TPcAYWxQMIC2YWh3Xg=\",\"salt\":\"jDLc5WyracKZz8cTws8HYA==\",\"additionalParameters\":{}}",
+      "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+    } ],
     "disableableCredentialTypes" : [ ],
     "requiredActions" : [ ],
     "realmRoles" : [ "default-roles-simulador-realm", "admin" ],
