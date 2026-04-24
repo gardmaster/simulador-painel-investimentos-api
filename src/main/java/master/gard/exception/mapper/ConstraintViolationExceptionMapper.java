@@ -1,6 +1,5 @@
 package master.gard.exception.mapper;
 
-import io.quarkus.logging.Log;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.core.Context;

@@ -42,7 +42,7 @@ public interface ClienteResourceI {
     Response listarClientes();
 
     @GET
-    @RolesAllowed({"admin", "user"})
+    @RolesAllowed("admin")
     @Path("/{id}")
     @Operation(
             summary = "Obter cliente por ID",
@@ -133,7 +133,7 @@ public interface ClienteResourceI {
             @NotNull @Valid ClienteRequest request);
 
     @PUT
-    @RolesAllowed({"admin", "user"})
+    @RolesAllowed("admin")
     @Path("/{id}")
     @Operation(
             summary = "Atualizar cliente existente",
@@ -173,4 +173,80 @@ public interface ClienteResourceI {
                     content = @Content(schema = @Schema(implementation = ClienteRequest.class)))
             @Valid @NotNull ClienteRequest request
     );
+
+    @GET
+    @Path("/me")
+    @RolesAllowed({"admin", "user"})
+    @Operation(
+            summary = "Obter dados do cliente autenticado",
+            description = "Retorna os detalhes do cliente atualmente autenticado com base no token de autenticação."
+    )
+    @APIResponse(
+            responseCode = "200",
+            description = "Dados do cliente autenticado retornados com sucesso",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ClienteResponse.class)
+            )
+    )
+    @APIResponse(
+            responseCode = "401",
+            description = "Não autorizado - token de autenticação ausente ou inválido",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ProblemDetails.class)
+            )
+    )
+    Response obterClienteAutenticado();
+
+    @PUT
+    @Path("/me")
+    @RolesAllowed({"admin", "user"})
+    @Operation(
+            summary = "Atualizar dados do cliente autenticado",
+            description = "Permite que o cliente atualmente autenticado atualize seus próprios dados com base no token de autenticação."
+    )
+    @APIResponse(
+            responseCode = "200",
+            description = "Dados do cliente autenticado atualizados com sucesso",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ClienteResponse.class)
+            )
+    )
+    @APIResponse(
+            responseCode = "400",
+            description = "Requisição inválida - erro de validação",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ProblemDetails.class),
+                    examples = @ExampleObject(
+                            name = "CamposInvalidos",
+                            value = """
+                                    {
+                                      "title": "Conflito de dados",
+                                      "status": 409,
+                                      "detail": "Já existe cliente com este e-mail ou documento.",
+                                      "instance": "http://localhost:8080/api/v1/clientes"
+                                    }
+                                    """
+                    )
+            )
+    )
+    @APIResponse(
+            responseCode = "401",
+            description = "Não autorizado - token de autenticação ausente ou inválido",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ProblemDetails.class)
+            )
+    )
+    Response atualizarClienteAutenticado(
+            @RequestBody(
+                    description = "Dados atualizados do cliente autenticado",
+                    content = @Content(schema = @Schema(implementation = ClienteRequest.class)))
+
+            @Valid @NotNull ClienteRequest request
+    );
+
 }

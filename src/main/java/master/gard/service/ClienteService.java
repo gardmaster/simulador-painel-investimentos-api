@@ -1,15 +1,18 @@
 package master.gard.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
 import master.gard.dto.request.ClienteRequest;
 import master.gard.dto.response.ClienteResponse;
+import master.gard.exception.ClienteAutenticadoSemCadastroException;
 import master.gard.exception.ClienteNaoEncontradoException;
 import master.gard.exception.DocumentoExistenteException;
 import master.gard.exception.EmailExistenteException;
 import master.gard.model.Cliente;
 import master.gard.repository.ClienteRepository;
+import master.gard.util.JwtUtil;
 import org.jboss.logging.Logger;
 
 import java.util.List;
@@ -19,9 +22,12 @@ public class ClienteService {
 
     private static final Logger LOG = Logger.getLogger(ClienteService.class);
     private final ClienteRepository clienteRepository;
+    private final JwtUtil jwtUtil;
 
-    public ClienteService(ClienteRepository clienteRepository) {
+    @Inject
+    public ClienteService(ClienteRepository clienteRepository, JwtUtil jwtUtil) {
         this.clienteRepository = clienteRepository;
+        this.jwtUtil = jwtUtil;
     }
 
     @Transactional
@@ -76,6 +82,31 @@ public class ClienteService {
 
         return Response.ok(ClienteResponse.fromEntity(clienteExistente)).build();
     }
+
+    @Transactional
+    public Response obterClienteAutenticado() {
+        LOG.info("Chamando ClienteService para buscar cliente autenticado");
+
+        String authUserId = jwtUtil.getSubject();
+        LOG.infof("AuthUserId extraído do token: %s", authUserId);
+
+        Cliente cliente = clienteRepository.findByAuthUserIdOptional(authUserId)
+                .orElseThrow(() -> new ClienteAutenticadoSemCadastroException(
+                        jwtUtil.getPreferredUsername().orElse("N/A"),
+                        authUserId, jwtUtil.getName().orElse("N/A"),
+                        jwtUtil.getEmail().orElse("N/A")));
+
+        LOG.infof("Cliente autenticado encontrado: ID %d, Nome: %s", cliente.getId(), cliente.getNome());
+
+        return Response.ok(ClienteResponse.fromEntity(cliente)).build();
+    }
+
+
+
+
+
+
+
 
     private void validarDocumentoCadastrado(String documento) {
         if (clienteRepository.isDocumentoExistente(documento)) {

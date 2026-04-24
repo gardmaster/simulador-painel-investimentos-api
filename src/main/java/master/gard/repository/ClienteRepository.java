@@ -4,6 +4,8 @@ import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import master.gard.model.Cliente;
 
+import java.util.Optional;
+
 @ApplicationScoped
 public class ClienteRepository implements PanacheRepository<Cliente> {
 
@@ -21,5 +23,9 @@ public class ClienteRepository implements PanacheRepository<Cliente> {
 
     public boolean isEmailCadastradoParaOutroCliente(String email, Long id) {
         return count("email = ?1 and id <> ?2", email, id) > 0;
+    }
+
+    public Optional<Cliente> findByAuthUserIdOptional(String authUserId) {
+        return find("authUserId", authUserId).firstResultOptional();
     }
 }
