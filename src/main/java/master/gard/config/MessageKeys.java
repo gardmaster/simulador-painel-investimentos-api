@@ -16,6 +16,12 @@ public final class MessageKeys {
     public static final String CAMPOS_INVALIDOS_TITLE = "error.campos-invalidos.title";
     public static final String CAMPOS_INVALIDOS_DETAIL = "error.campos-invalidos.detail";
 
-    public static final String CLAIM_SUB_INEXISTENTE_TITLE = "error.claim-sub-inexistente.title";
-    public static final String CLAIM_SUB_INEXISTENTE_DETAIL = "error.claim-sub-inexistente.detail";
+    public static final String CLAIM_SUB_INEXISTENTE_TITLE = "error.jwt.subject-nao-encontrado.title";
+    public static final String CLAIM_SUB_INEXISTENTE_DETAIL = "error.jwt.subject-nao-encontrado.detail";
+
+    public static final String CLIENTE_AUTENTICADO_SEM_CADASTRO_TITLE = "error.cliente.cadastro-nao-encontrado.title";
+    public static final String CLIENTE_AUTENTICADO_SEM_CADASTRO_DETAIL = "error.cliente.cadastro-nao-encontrado.detail";
+
+    public static final String CLIENTE_AUTENTICADO_JA_CADASTRADO_TITLE = "error.cliente.cadastro-existente.title";
+    public static final String CLIENTE_AUTENTICADO_JA_CADASTRADO_DETAIL = "error.cliente.cadastro-existente.detail";
 }

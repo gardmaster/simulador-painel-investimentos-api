@@ -1,5 +1,6 @@
 CREATE TABLE clientes (
     id BIGINT IDENTITY(1,1) NOT NULL,
+    auth_user_id NVARCHAR(255) NOT NULL,
     nome NVARCHAR(255) NOT NULL,
     documento NVARCHAR(255) NOT NULL,
     email NVARCHAR(255) NOT NULL,
@@ -8,6 +9,7 @@ CREATE TABLE clientes (
     data_atualizacao DATETIME2(6) NOT NULL,
 
     CONSTRAINT pk_clientes PRIMARY KEY (id),
+    CONSTRAINT uk_clientes_auth_user_id UNIQUE (auth_user_id),
     CONSTRAINT uk_clientes_documento UNIQUE (documento),
     CONSTRAINT uk_clientes_email UNIQUE (email),
     CONSTRAINT ck_clientes_perfil_risco CHECK (

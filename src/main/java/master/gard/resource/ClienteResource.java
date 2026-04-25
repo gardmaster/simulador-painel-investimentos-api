@@ -33,4 +33,15 @@ public class ClienteResource implements ClienteResourceI {
     public Response atualizarCadastroCliente(Long id, ClienteRequest request) {
         return service.atualizarCliente(id, request);
     }
+
+    @Override
+    public Response obterClienteAutenticado() {
+        return service.obterClienteAutenticado();
+    }
+
+    @Override
+    public Response atualizarClienteAutenticado(ClienteRequest request) {
+        return service.atualizarCadastroClienteAutenticado(request);
+    }
+
 }

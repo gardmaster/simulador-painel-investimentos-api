@@ -1,6 +1,5 @@
 package master.gard.exception.mapper;
 
-import io.quarkus.logging.Log;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
