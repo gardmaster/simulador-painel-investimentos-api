@@ -41,7 +41,7 @@ public class ClienteResource implements ClienteResourceI {
 
     @Override
     public Response atualizarClienteAutenticado(ClienteRequest request) {
-        return null;
+        return service.atualizarCadastroClienteAutenticado(request);
     }
 
 }
