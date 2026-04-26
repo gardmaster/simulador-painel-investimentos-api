@@ -1,7 +1,9 @@
 package master.gard.dto.response;
 
 import master.gard.model.Cliente;
+import master.gard.util.DocumentoUtil;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
 
 @Schema(description = "Dados retornados de um cliente")
 public record ClienteResponse(
@@ -25,18 +27,10 @@ public record ClienteResponse(
                 cliente.getId(),
                 cliente.getNome(),
                 cliente.getEmail(),
-                formatarCpfCnpj(cliente.getDocumento()),
+                DocumentoUtil.formatarCpfCnpj(cliente.getDocumento()),
                 cliente.getPerfilRisco().name()
         );
     }
 
-    private static String formatarCpfCnpj(String documento) {
-        if (documento != null && documento.length() == 11) {
-            return documento.replaceAll("(\\d{3})(\\d{3})(\\d{3})(\\d{2})", "$1.$2.$3-$4");
-        } else if (documento != null && documento.length() == 14) {
-            return documento.replaceAll("([A-Z0-9]{2})([A-Z0-9]{3})([A-Z0-9]{3})([A-Z0-9]{4})(\\d{2})", "$1.$2.$3/$4-$5");
-        }
-        return documento;
-    }
 }
 
