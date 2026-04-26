@@ -26,22 +26,22 @@ public class ClienteResource implements ClienteResourceI {
 
     @Override
     public Response cadastrarCliente(ClienteRequest request) {
-        return service.cadastrarCliente(request);
+        return Response.ok().entity(service.cadastrarCliente(request)).build();
     }
 
     @Override
     public Response atualizarCadastroCliente(Long id, ClienteRequest request) {
-        return service.atualizarCliente(id, request);
+        return Response.ok().entity(service.atualizarCliente(id, request)).build();
     }
 
     @Override
     public Response obterClienteAutenticado() {
-        return service.obterClienteAutenticado();
+        return Response.ok().entity(service.obterClienteAutenticado()).build();
     }
 
     @Override
     public Response atualizarClienteAutenticado(ClienteRequest request) {
-        return service.atualizarCadastroClienteAutenticado(request);
+        return Response.ok().entity(service.atualizarCadastroClienteAutenticado(request)).build();
     }
 
 }

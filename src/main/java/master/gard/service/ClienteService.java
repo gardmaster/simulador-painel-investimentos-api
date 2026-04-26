@@ -47,7 +47,7 @@ public class ClienteService {
     }
 
     @Transactional
-    public Response cadastrarCliente(ClienteRequest request) {
+    public ClienteResponse cadastrarCliente(ClienteRequest request) {
         LOG.infof("Cadastrando novo cliente: %s", request.nome());
 
         LOG.info("Recuperando claim 'sub' do token JWT para associar ao cliente");
@@ -63,11 +63,11 @@ public class ClienteService {
         clienteRepository.persist(cliente);
         LOG.infof("Cliente persistido com ID: %d", cliente.getId());
 
-        return Response.status(Response.Status.CREATED).entity(ClienteResponse.fromEntity(cliente)).build();
+        return ClienteResponse.fromEntity(cliente);
     }
 
     @Transactional
-    public Response atualizarCliente(Long id, ClienteRequest request) {
+    public ClienteResponse atualizarCliente(Long id, ClienteRequest request) {
         LOG.infof("Atualizando cliente com ID: %d", id);
 
         Cliente clienteExistente = validarClienteExistente(id);
@@ -82,11 +82,11 @@ public class ClienteService {
         clienteRepository.persist(clienteExistente);
         LOG.infof("Cliente atualizado com ID: %d", id);
 
-        return Response.ok(ClienteResponse.fromEntity(clienteExistente)).build();
+        return ClienteResponse.fromEntity(clienteExistente);
     }
 
     @Transactional
-    public Response obterClienteAutenticado() {
+    public ClienteResponse obterClienteAutenticado() {
         LOG.info("Chamando ClienteService para buscar cliente autenticado");
 
         String authUserId = jwtUtil.getSubject();
@@ -96,11 +96,11 @@ public class ClienteService {
 
         LOG.infof("Cliente autenticado encontrado: ID %d, Nome: %s", cliente.getId(), cliente.getNome());
 
-        return Response.ok(ClienteResponse.fromEntity(cliente)).build();
+        return ClienteResponse.fromEntity(cliente);
     }
 
     @Transactional
-    public Response atualizarCadastroClienteAutenticado(ClienteRequest request) {
+    public ClienteResponse atualizarCadastroClienteAutenticado(ClienteRequest request) {
         LOG.infof("Atualizando cadastro do cliente autenticado: %s", request.nome());
 
         String authUserId = jwtUtil.getSubject();
@@ -119,7 +119,7 @@ public class ClienteService {
         clienteRepository.persist(clienteExistente);
         LOG.infof("Cadastro do cliente autenticado atualizado com ID: %d", clienteExistente.getId());
 
-        return Response.ok(ClienteResponse.fromEntity(clienteExistente)).build();
+        return ClienteResponse.fromEntity(clienteExistente);
     }
 
 
