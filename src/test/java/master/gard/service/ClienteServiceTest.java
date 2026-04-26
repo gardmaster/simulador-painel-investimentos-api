@@ -2,10 +2,7 @@ package master.gard.service;
 
 import master.gard.dto.request.ClienteRequest;
 import master.gard.dto.response.ClienteResponse;
-import master.gard.exception.ClienteAutenticadoJaCadastradoException;
-import master.gard.exception.ClienteNaoEncontradoException;
-import master.gard.exception.DocumentoExistenteException;
-import master.gard.exception.EmailExistenteException;
+import master.gard.exception.*;
 import master.gard.model.Cliente;
 import master.gard.model.enums.PerfilRisco;
 import master.gard.repository.ClienteRepository;
@@ -30,8 +27,10 @@ class ClienteServiceTest {
 
     private static final Long ID_CLIENTE_1 = 1L;
     private static final Long ID_CLIENTE_2 = 2L;
+    private static final Long ID_CLIENTE_INEXISTENTE = 999L;
 
     private static final String AUTH_USER_ID_VALIDO = "auth-123";
+    private static final String AUTH_USER_ID_VALIDO_SEM_CADASTRO = "auth-999";
     private static final String NOME_CLIENTE_1 = "Cliente 1";
     private static final String NOME_CLIENTE_2 = "Cliente 2";
     private static final String NOME_CLIENTE_NOVO = "Cliente Novo";
@@ -183,6 +182,123 @@ class ClienteServiceTest {
                 () -> clienteServiceInjectedMock.cadastrarCliente(request));
 
         verify(clienteRepositoryMock, never()).persist(any(Cliente.class));
+    }
+
+    @Test
+    @DisplayName("Deve atualizar cadastro do cliente recuperado por ID")
+    void deveAtualizarCadastroCliente_quandoIdExistenteComDadosValidos() {
+        ClienteRequest request = montarRequestPadrao();
+        Cliente clienteExistente = montarCliente(ID_CLIENTE_1, NOME_CLIENTE_1, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_1, PERFIL_CLIENTE_1);
+
+        when(clienteRepositoryMock.findByIdOptional(ID_CLIENTE_1)).thenReturn(Optional.of(clienteExistente));
+        when(clienteRepositoryMock.isDocumentoCadastradoParaOutroCliente(DOCUMENTO_CLIENTE_1, ID_CLIENTE_1)).thenReturn(false);
+        when(clienteRepositoryMock.isEmailCadastradoParaOutroCliente(EMAIL_CLIENTE_NOVO, ID_CLIENTE_1)).thenReturn(false);
+
+        ClienteResponse resposta = clienteServiceInjectedMock.atualizarCliente(ID_CLIENTE_1, request);
+
+        assertNotNull(resposta);
+        assertEquals(NOME_CLIENTE_NOVO, resposta.nome());
+        assertEquals(DocumentoUtil.formatarCpfCnpj(DOCUMENTO_CLIENTE_1), resposta.documento());
+        assertEquals(EMAIL_CLIENTE_NOVO, resposta.email());
+        assertEquals(PERFIL_CLIENTE_NOVO.name(), resposta.perfilRisco());
+    }
+
+    @Test
+    @DisplayName("Deve lancar ClienteNaoEncontradoException ao tentar atualizar cadastro de cliente inexistente")
+    void deveLancarClienteNaoEncontradoException_quandoAtualizarCadastroClienteInexistente() {
+        ClienteRequest request = montarRequestPadrao();
+
+        when(clienteRepositoryMock.findByIdOptional(ID_CLIENTE_INEXISTENTE)).thenReturn(Optional.empty());
+
+        assertThrows(ClienteNaoEncontradoException.class,
+                () -> clienteServiceInjectedMock.atualizarCliente(ID_CLIENTE_INEXISTENTE, request));
+
+        verify(clienteRepositoryMock, never()).persist(any(Cliente.class));
+    }
+
+    @Test
+    @DisplayName("Deve lancar DocumentoExistenteException ao tentar atualizar cadastro com documento já existente para outro cliente")
+    void deveLancarDocumentoExistenteException_quandoAtualizarCadastroComDocumentoExistente() {
+        ClienteRequest request = montarRequestPadrao();
+        Cliente clienteExistente = montarCliente(ID_CLIENTE_1, NOME_CLIENTE_1, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_1, PERFIL_CLIENTE_1);
+
+        when(clienteRepositoryMock.findByIdOptional(ID_CLIENTE_1)).thenReturn(Optional.of(clienteExistente));
+        when(clienteRepositoryMock.isDocumentoCadastradoParaOutroCliente(DOCUMENTO_CLIENTE_1, ID_CLIENTE_1)).thenReturn(true);
+
+        assertThrows(DocumentoExistenteException.class,
+                () -> clienteServiceInjectedMock.atualizarCliente(ID_CLIENTE_1, request));
+
+        verify(clienteRepositoryMock, never()).persist(any(Cliente.class));
+    }
+
+    @Test
+    @DisplayName("Deve lancar EmailExistenteException ao tentar atualizar cadastro com email já existente para outro cliente")
+    void deveLancarEmailExistenteException_quandoAtualizarCadastroComEmailExistente(){
+        ClienteRequest request = montarRequestPadrao();
+        Cliente clienteExistente = montarCliente(ID_CLIENTE_1, NOME_CLIENTE_1, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_1, PERFIL_CLIENTE_1);
+
+        when(clienteRepositoryMock.findByIdOptional(ID_CLIENTE_1)).thenReturn(Optional.of(clienteExistente));
+        when(clienteRepositoryMock.isDocumentoCadastradoParaOutroCliente(DOCUMENTO_CLIENTE_1, ID_CLIENTE_1)).thenReturn(false);
+        when(clienteRepositoryMock.isEmailCadastradoParaOutroCliente(EMAIL_CLIENTE_NOVO, ID_CLIENTE_1)).thenReturn(true);
+
+        assertThrows(EmailExistenteException.class,
+                () -> clienteServiceInjectedMock.atualizarCliente(ID_CLIENTE_1, request));
+
+        verify(clienteRepositoryMock, never()).persist(any(Cliente.class));
+    }
+
+    @Test
+    @DisplayName("Recuperar informações do cliente autenticado")
+    void deveRecuperarInformacoesClienteAutenticado_quandoClienteExistir() {
+        Cliente clienteExistente = montarCliente(ID_CLIENTE_1, NOME_CLIENTE_1, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_1, PERFIL_CLIENTE_1);
+
+        when(jwtUtilMock.getSubject()).thenReturn(AUTH_USER_ID_VALIDO);
+        when(clienteRepositoryMock.findByAuthUserIdOptional(AUTH_USER_ID_VALIDO)).thenReturn(Optional.of(clienteExistente));
+
+        ClienteResponse resposta = clienteServiceInjectedMock.obterClienteAutenticado();
+
+        assertNotNull(resposta);
+        assertEquals(NOME_CLIENTE_1, resposta.nome());
+        assertEquals(DocumentoUtil.formatarCpfCnpj(DOCUMENTO_CLIENTE_1), resposta.documento());
+        assertEquals(EMAIL_CLIENTE_1, resposta.email());
+        assertEquals(PERFIL_CLIENTE_1.name(), resposta.perfilRisco());
+
+        verify(clienteRepositoryMock).findByAuthUserIdOptional(AUTH_USER_ID_VALIDO);
+    }
+
+    @Test
+    @DisplayName("Deve lançar ClienteAutenticadoNaoEncontradoException ao tentar recuperar informações do " +
+            "cliente autenticado sem cadastro na aplicação")
+    void deveLancarClienteAutenticadoNaoEncontradoException_quandoRecuperarClienteAutenticadoSemCadastro() {
+        when(jwtUtilMock.getSubject()).thenReturn(AUTH_USER_ID_VALIDO_SEM_CADASTRO);
+        when(clienteRepositoryMock.findByAuthUserIdOptional(AUTH_USER_ID_VALIDO_SEM_CADASTRO)).thenReturn(Optional.empty());
+
+        assertThrows(ClienteAutenticadoSemCadastroException.class,
+                () -> clienteServiceInjectedMock.obterClienteAutenticado());
+
+        verify(clienteRepositoryMock).findByAuthUserIdOptional(AUTH_USER_ID_VALIDO_SEM_CADASTRO);
+    }
+
+    @Test
+    @DisplayName("Deve atualizar informações do cliente autenticado")
+    void deveAtualizarInformacoesClienteAutenticado_quandoDadosForemValidos() {
+        ClienteRequest request = montarRequestPadrao();
+        Cliente clienteExistente = montarCliente(ID_CLIENTE_1, NOME_CLIENTE_1, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_1, PERFIL_CLIENTE_1);
+
+        when(jwtUtilMock.getSubject()).thenReturn(AUTH_USER_ID_VALIDO);
+        when(clienteRepositoryMock.findByAuthUserIdOptional(AUTH_USER_ID_VALIDO)).thenReturn(Optional.of(clienteExistente));
+        when(clienteRepositoryMock.isDocumentoCadastradoParaOutroCliente(DOCUMENTO_CLIENTE_1, ID_CLIENTE_1)).thenReturn(false);
+        when(clienteRepositoryMock.isEmailCadastradoParaOutroCliente(EMAIL_CLIENTE_NOVO, ID_CLIENTE_1)).thenReturn(false);
+
+        ClienteResponse resposta = clienteServiceInjectedMock.atualizarCadastroClienteAutenticado(request);
+
+        assertNotNull(resposta);
+        assertEquals(NOME_CLIENTE_NOVO, resposta.nome());
+        assertEquals(DocumentoUtil.formatarCpfCnpj(DOCUMENTO_CLIENTE_1), resposta.documento());
+        assertEquals(EMAIL_CLIENTE_NOVO, resposta.email());
+        assertEquals(PERFIL_CLIENTE_NOVO.name(), resposta.perfilRisco());
+
+        verify(clienteRepositoryMock).persist(clienteExistente);
     }
 
     private void mockarPreCondicoesCadastroValido(ClienteRequest request, String authUserId) {
