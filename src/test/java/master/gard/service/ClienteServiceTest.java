@@ -1,13 +1,20 @@
 package master.gard.service;
 
+import master.gard.dto.request.ClienteRequest;
 import master.gard.dto.response.ClienteResponse;
+import master.gard.exception.ClienteAutenticadoJaCadastradoException;
 import master.gard.exception.ClienteNaoEncontradoException;
+import master.gard.exception.DocumentoExistenteException;
+import master.gard.exception.EmailExistenteException;
 import master.gard.model.Cliente;
 import master.gard.model.enums.PerfilRisco;
 import master.gard.repository.ClienteRepository;
+import master.gard.util.DocumentoUtil;
+import master.gard.util.JwtUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -16,14 +23,34 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ClienteServiceTest {
 
+    private static final Long ID_CLIENTE_1 = 1L;
+    private static final Long ID_CLIENTE_2 = 2L;
+
+    private static final String AUTH_USER_ID_VALIDO = "auth-123";
+    private static final String NOME_CLIENTE_1 = "Cliente 1";
+    private static final String NOME_CLIENTE_2 = "Cliente 2";
+    private static final String NOME_CLIENTE_NOVO = "Cliente Novo";
+
+    private static final String DOCUMENTO_CLIENTE_1 = "12345678901";
+    private static final String DOCUMENTO_CLIENTE_2 = "12345678902";
+    private static final String EMAIL_CLIENTE_1 = "cliente1@test.com";
+    private static final String EMAIL_CLIENTE_2 = "cliente2@test.com";
+    private static final String EMAIL_CLIENTE_NOVO = "novo@test.com";
+
+    private static final PerfilRisco PERFIL_CLIENTE_1 = PerfilRisco.CONSERVADOR;
+    private static final PerfilRisco PERFIL_CLIENTE_2 = PerfilRisco.MODERADO;
+    private static final PerfilRisco PERFIL_CLIENTE_NOVO = PerfilRisco.MODERADO;
+
     @Mock
     private ClienteRepository clienteRepositoryMock;
+
+    @Mock
+    private JwtUtil jwtUtilMock;
 
     @InjectMocks
     private ClienteService clienteServiceInjectedMock;
@@ -31,22 +58,17 @@ class ClienteServiceTest {
     @Test
     @DisplayName("Deve retornar lista de clientes response quando existirem clientes cadastrados")
     void deveRetornarListaClientes_quandoExistiremClientesCadastrados() {
-        Cliente cliente1 = montarCliente(1L, "Cliente 1", "12345678901",
-                "cliente1@test.com", PerfilRisco.CONSERVADOR);
-
-        Cliente cliente2 = montarCliente(2L, "Cliente 2", "12345678902",
-                "cliente2@test.com", PerfilRisco.MODERADO);
-
+        Cliente cliente1 = montarCliente(ID_CLIENTE_1, NOME_CLIENTE_1, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_1, PERFIL_CLIENTE_1);
+        Cliente cliente2 = montarCliente(ID_CLIENTE_2, NOME_CLIENTE_2, DOCUMENTO_CLIENTE_2, EMAIL_CLIENTE_2, PERFIL_CLIENTE_2);
         when(clienteRepositoryMock.listAll()).thenReturn(List.of(cliente1, cliente2));
 
         List<ClienteResponse> resposta = clienteServiceInjectedMock.listarClientes();
 
         assertNotNull(resposta);
         assertEquals(2, resposta.size());
-        assertEquals("Cliente 1", resposta.getFirst().nome());
-        assertEquals("Cliente 2", resposta.get(1).nome());
+        assertEquals(NOME_CLIENTE_1, resposta.getFirst().nome());
+        assertEquals(NOME_CLIENTE_2, resposta.get(1).nome());
         verify(clienteRepositoryMock).listAll();
-
     }
 
     @Test
@@ -57,33 +79,126 @@ class ClienteServiceTest {
         List<ClienteResponse> resposta = clienteServiceInjectedMock.listarClientes();
 
         assertNotNull(resposta);
-        assertEquals(0, resposta.size());
+        assertTrue(resposta.isEmpty());
         verify(clienteRepositoryMock).listAll();
     }
 
     @Test
     @DisplayName("Deve retornar cliente response quando cliente for encontrado por ID")
     void deveRetornarClienteResponse_quandoClienteForEncontradoPorId() {
-        Cliente cliente = montarCliente(1L, "Cliente 1", "12345678901",
-                "cliente1@test.com", PerfilRisco.CONSERVADOR);
+        Cliente cliente = montarCliente(ID_CLIENTE_1, NOME_CLIENTE_1, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_1, PERFIL_CLIENTE_1);
+        when(clienteRepositoryMock.findByIdOptional(ID_CLIENTE_1)).thenReturn(Optional.of(cliente));
 
-        when(clienteRepositoryMock.findByIdOptional(1L)).thenReturn(Optional.of(cliente));
-
-        ClienteResponse resposta = clienteServiceInjectedMock.recuperarCliente(1L);
+        ClienteResponse resposta = clienteServiceInjectedMock.recuperarCliente(ID_CLIENTE_1);
 
         assertNotNull(resposta);
-        assertEquals(1L, resposta.id());
-        verify(clienteRepositoryMock).findByIdOptional(1L);
+        assertEquals(ID_CLIENTE_1, resposta.id());
+        verify(clienteRepositoryMock).findByIdOptional(ID_CLIENTE_1);
     }
 
     @Test
     @DisplayName("Deve lançar ClienteNaoEncontradoException quando cliente não for encontrado por ID")
     void deveLancarClienteNaoEncontradoException_quandoClienteNaoForEncontradoPorId() {
-        when(clienteRepositoryMock.findByIdOptional(1L)).thenReturn(Optional.empty());
+        when(clienteRepositoryMock.findByIdOptional(ID_CLIENTE_1)).thenReturn(Optional.empty());
 
-        assertThrows(ClienteNaoEncontradoException.class, () -> clienteServiceInjectedMock.recuperarCliente(1L));
+        assertThrows(ClienteNaoEncontradoException.class,
+                () -> clienteServiceInjectedMock.recuperarCliente(ID_CLIENTE_1));
 
-        verify(clienteRepositoryMock).findByIdOptional(1L);
+        verify(clienteRepositoryMock).findByIdOptional(ID_CLIENTE_1);
+    }
+
+    @Test
+    @DisplayName("Deve cadastrar cliente quando request for valida e dados nao existirem")
+    void deveCadastrarCliente_quandoDadosForemValidos() {
+        ClienteRequest request = montarRequestPadrao();
+        mockarPreCondicoesCadastroValido(request, AUTH_USER_ID_VALIDO);
+
+        ClienteResponse resposta = clienteServiceInjectedMock.cadastrarCliente(request);
+
+        assertNotNull(resposta);
+        assertEquals(NOME_CLIENTE_NOVO, resposta.nome());
+        assertEquals(DocumentoUtil.formatarCpfCnpj(DOCUMENTO_CLIENTE_1), resposta.documento());
+        assertEquals(EMAIL_CLIENTE_NOVO, resposta.email());
+        assertEquals(PERFIL_CLIENTE_NOVO.name(), resposta.perfilRisco());
+
+        ArgumentCaptor<Cliente> captor = ArgumentCaptor.forClass(Cliente.class);
+        verify(clienteRepositoryMock).persist(captor.capture());
+
+        Cliente persistido = captor.getValue();
+        assertEquals(AUTH_USER_ID_VALIDO, persistido.getAuthUserId());
+        assertEquals(NOME_CLIENTE_NOVO, persistido.getNome());
+        assertEquals(DOCUMENTO_CLIENTE_1, persistido.getDocumento());
+        assertEquals(EMAIL_CLIENTE_NOVO, persistido.getEmail());
+        assertEquals(PERFIL_CLIENTE_NOVO, persistido.getPerfilRisco());
+    }
+
+    @Test
+    @DisplayName("Deve lancar ClienteAutenticadoJaCadastradoException quando authUserId ja possuir cadastro")
+    void deveLancarClienteAutenticadoJaCadastradoException_quandoAuthUserJaExistir() {
+        ClienteRequest request = montarRequestPadrao();
+        Cliente existente = new Cliente();
+        existente.setNome("Cliente Existente");
+        existente.setEmail("existente@test.com");
+
+        when(jwtUtilMock.getSubject()).thenReturn(AUTH_USER_ID_VALIDO);
+        when(clienteRepositoryMock.findByAuthUserIdOptional(AUTH_USER_ID_VALIDO)).thenReturn(Optional.of(existente));
+
+        assertThrows(ClienteAutenticadoJaCadastradoException.class,
+                () -> clienteServiceInjectedMock.cadastrarCliente(request));
+
+        verify(clienteRepositoryMock, never()).persist(any(Cliente.class));
+        verify(clienteRepositoryMock, never()).isDocumentoExistente(any());
+        verify(clienteRepositoryMock, never()).isEmailExistente(any());
+    }
+
+    @Test
+    @DisplayName("Deve lancar DocumentoExistenteException quando documento ja estiver cadastrado")
+    void deveLancarDocumentoExistenteException_quandoDocumentoJaExistir() {
+        ClienteRequest request = montarRequestPadrao();
+
+        when(jwtUtilMock.getSubject()).thenReturn(AUTH_USER_ID_VALIDO);
+        when(clienteRepositoryMock.findByAuthUserIdOptional(AUTH_USER_ID_VALIDO)).thenReturn(Optional.empty());
+        when(clienteRepositoryMock.isDocumentoExistente(DOCUMENTO_CLIENTE_1)).thenReturn(true);
+
+        assertThrows(DocumentoExistenteException.class,
+                () -> clienteServiceInjectedMock.cadastrarCliente(request));
+
+        verify(clienteRepositoryMock, never()).persist(any(Cliente.class));
+        verify(clienteRepositoryMock, never()).isEmailExistente(any());
+    }
+
+    @Test
+    @DisplayName("Deve lancar EmailExistenteException quando email ja estiver cadastrado")
+    void deveLancarEmailExistenteException_quandoEmailJaExistir() {
+        // Arrange
+        ClienteRequest request = montarRequestPadrao();
+
+        when(jwtUtilMock.getSubject()).thenReturn(AUTH_USER_ID_VALIDO);
+        when(clienteRepositoryMock.findByAuthUserIdOptional(AUTH_USER_ID_VALIDO)).thenReturn(Optional.empty());
+        when(clienteRepositoryMock.isDocumentoExistente(DOCUMENTO_CLIENTE_1)).thenReturn(false);
+        when(clienteRepositoryMock.isEmailExistente(EMAIL_CLIENTE_NOVO)).thenReturn(true);
+
+        // Act + Assert
+        assertThrows(EmailExistenteException.class,
+                () -> clienteServiceInjectedMock.cadastrarCliente(request));
+
+        verify(clienteRepositoryMock, never()).persist(any(Cliente.class));
+    }
+
+    private void mockarPreCondicoesCadastroValido(ClienteRequest request, String authUserId) {
+        when(jwtUtilMock.getSubject()).thenReturn(authUserId);
+        when(clienteRepositoryMock.findByAuthUserIdOptional(authUserId)).thenReturn(Optional.empty());
+        when(clienteRepositoryMock.isDocumentoExistente(request.documento())).thenReturn(false);
+        when(clienteRepositoryMock.isEmailExistente(request.email())).thenReturn(false);
+    }
+
+    private ClienteRequest montarRequestPadrao() {
+        return new ClienteRequest(
+                NOME_CLIENTE_NOVO,
+                DOCUMENTO_CLIENTE_1,
+                EMAIL_CLIENTE_NOVO,
+                PERFIL_CLIENTE_NOVO
+        );
     }
 
     private Cliente montarCliente(Long id, String nome, String documento, String email, PerfilRisco perfilRisco) {

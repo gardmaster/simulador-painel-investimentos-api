@@ -3,7 +3,6 @@ package master.gard.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.core.Response;
 import master.gard.dto.request.ClienteRequest;
 import master.gard.dto.response.ClienteResponse;
 import master.gard.exception.*;
