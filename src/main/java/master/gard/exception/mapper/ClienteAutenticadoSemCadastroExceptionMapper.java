@@ -9,7 +9,6 @@ import master.gard.config.MessageKeys;
 import master.gard.config.Messages;
 import master.gard.dto.exception.ProblemDetails;
 import master.gard.exception.ClienteAutenticadoSemCadastroException;
-import master.gard.exception.ClienteNaoEncontradoException;
 import org.jboss.logging.Logger;
 
 @Provider
