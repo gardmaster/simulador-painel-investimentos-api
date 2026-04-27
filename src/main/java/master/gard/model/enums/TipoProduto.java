@@ -21,11 +21,4 @@ public enum TipoProduto {
         this.descricao = descricao;
     }
 
-    public boolean possuiVencimento() {
-        return switch (this) {
-            case CDB, LCI, LCA, TESOURO_DIRETO_SELIC, CRI, CRA, DEBENTURE -> true;
-            case FIA, FII -> false;
-        };
-    }
-
 }

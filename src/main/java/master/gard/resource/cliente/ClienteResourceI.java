@@ -1,4 +1,4 @@
-package master.gard.resource;
+package master.gard.resource.cliente;
 
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;

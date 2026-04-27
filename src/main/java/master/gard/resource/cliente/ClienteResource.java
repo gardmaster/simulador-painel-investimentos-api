@@ -1,4 +1,4 @@
-package master.gard.resource;
+package master.gard.resource.cliente;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
@@ -24,6 +24,8 @@ public class ClienteResource implements ClienteResourceI {
         return Response.ok(service.recuperarCliente(id)).build();
     }
 
+
+    //TODO: VERIFICAR MELHOR FORMA DE RETORNAR O STATUS CERTO POR REQUISIÇÃO
     @Override
     public Response cadastrarCliente(ClienteRequest request) {
         return Response.ok().entity(service.cadastrarCliente(request)).build();
