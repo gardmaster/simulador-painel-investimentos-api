@@ -23,7 +23,6 @@ CREATE TABLE produtos (
     tipo_produto NVARCHAR(50) NOT NULL,
     produto_risco NVARCHAR(30) NOT NULL,
     rentabilidade_mensal FLOAT NOT NULL,
-    data_vencimento DATETIME2(6) NULL,
     data_criacao DATETIME2(6) NOT NULL,
     data_atualizacao DATETIME2(6) NOT NULL,
 

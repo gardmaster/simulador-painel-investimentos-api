@@ -30,9 +30,6 @@ public class Produto {
     @Column(name = "rentabilidade_mensal", nullable = false)
     private Double rentabilidadeMensal;
 
-    @Column(name = "data_vencimento", nullable = true)
-    private LocalDateTime dataVencimento;
-
     @Column(name = "data_criacao", nullable = false)
     private LocalDateTime dataCriacao;
 
