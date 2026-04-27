@@ -3,6 +3,7 @@ package master.gard.service;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import master.gard.model.Produto;
 import master.gard.repository.ProdutoRepository;
 
@@ -16,4 +17,8 @@ public class ProdutoService implements PanacheRepository<Produto> {
         this.produtoRepository = produtoRepository;
     }
 
+    @Transactional
+    public List<ProdutoResponse> listarProdutos() {
+
+    }
 }
