@@ -24,4 +24,7 @@ public final class MessageKeys {
 
     public static final String CLIENTE_AUTENTICADO_JA_CADASTRADO_TITLE = "error.cliente.cadastro-existente.title";
     public static final String CLIENTE_AUTENTICADO_JA_CADASTRADO_DETAIL = "error.cliente.cadastro-existente.detail";
+
+    public static final String PRODUTO_NAO_ENCONTRADO_TITLE = "error.produto.nao-encontrado.title";
+    public static final String PRODUTO_NAO_ENCONTRADO_DETAIL = "error.produto.nao-encontrado.detail";
 }

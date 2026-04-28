@@ -20,4 +20,9 @@ public interface ProdutoResourceI {
     @Tag(name = "Listar Produtos", description = "Retorna uma lista de todos os produtos financeiros disponíveis")
     Response listarProdutos();
 
+    @GET
+    @Path("/{id}")
+    @RolesAllowed("admin")
+    @Tag(name = "Obter Produto por ID", description = "Retorna os detalhes de um produto financeiro específico com base no seu ID")
+    Response getProdutoPorId(Long id);
 }

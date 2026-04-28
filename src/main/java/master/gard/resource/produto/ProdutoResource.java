@@ -18,4 +18,8 @@ public class ProdutoResource implements ProdutoResourceI {
         return Response.ok().entity(service.listarProdutos()).build();
     }
 
+    @Override
+    public Response getProdutoPorId(Long id) {
+        return Response.ok().entity(service.getProdutoPorId(id)).build();
+    }
 }
