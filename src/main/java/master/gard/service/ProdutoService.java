@@ -5,6 +5,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import master.gard.dto.response.ProdutoResponse;
+import master.gard.exception.ProdutoNaoEncontradoException;
 import master.gard.model.Produto;
 import master.gard.repository.ProdutoRepository;
 import org.jboss.logging.Logger;
@@ -31,5 +32,14 @@ public class ProdutoService implements PanacheRepository<Produto> {
                 .stream()
                 .map(ProdutoResponse::fromEntity)
                 .toList();
+    }
+
+    @Transactional
+    public ProdutoResponse getProdutoPorId(Long id) {
+        LOG.infof("Recuperando produto financeiro com ID: %d", id);
+
+        return produtoRepository.findByIdOptional(id)
+                .map(ProdutoResponse::fromEntity)
+                .orElseThrow(() -> new ProdutoNaoEncontradoException(id));
     }
 }
