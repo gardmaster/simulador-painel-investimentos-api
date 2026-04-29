@@ -16,7 +16,7 @@ public class Produto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "nome", nullable = false)
+    @Column(name = "nome", nullable = false, unique = true)
     private String nome;
 
     @Enumerated(EnumType.STRING)
@@ -35,9 +35,6 @@ public class Produto {
 
     @Column(name = "data_atualizacao", nullable = false)
     private LocalDateTime dataAtualizacao;
-
-    private Produto() {
-    }
 
     @PrePersist
     public void prePersist() {
