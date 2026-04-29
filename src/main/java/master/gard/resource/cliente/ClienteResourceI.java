@@ -249,4 +249,5 @@ public interface ClienteResourceI {
             @Valid @NotNull ClienteRequest request
     );
 
+    // TODO: Criar o endpoint DELETE quando eu conseguir validar que o produto não possui associações com simulações ou investimentos.
 }

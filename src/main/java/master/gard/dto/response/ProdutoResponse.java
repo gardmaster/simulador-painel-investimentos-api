@@ -30,4 +30,5 @@ public record ProdutoResponse(
                     produto.getRentabilidadeMensal()
             );
         }
+
 }

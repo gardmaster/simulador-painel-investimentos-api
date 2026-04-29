@@ -28,4 +28,9 @@ public class ProdutoResource implements ProdutoResourceI {
     public Response cadastrarProduto(ProdutoRequest request) {
         return Response.status(Response.Status.CREATED).entity(service.cadastrarNovoProduto(request)).build();
     }
+
+    @Override
+    public Response atualizarProduto(Long id, ProdutoRequest request) {
+        return Response.ok().entity(service.atualizarProduto(id, request)).build();
+    }
 }
