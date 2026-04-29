@@ -2,6 +2,7 @@ package master.gard.resource.produto;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
+import master.gard.dto.request.ProdutoRequest;
 import master.gard.service.ProdutoService;
 
 public class ProdutoResource implements ProdutoResourceI {
@@ -21,5 +22,10 @@ public class ProdutoResource implements ProdutoResourceI {
     @Override
     public Response getProdutoPorId(Long id) {
         return Response.ok().entity(service.getProdutoPorId(id)).build();
+    }
+
+    @Override
+    public Response cadastrarProduto(ProdutoRequest request) {
+        return Response.status(Response.Status.CREATED).entity(service.cadastrarNovoProduto(request)).build();
     }
 }

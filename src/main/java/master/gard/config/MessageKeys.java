@@ -27,4 +27,7 @@ public final class MessageKeys {
 
     public static final String PRODUTO_NAO_ENCONTRADO_TITLE = "error.produto.nao-encontrado.title";
     public static final String PRODUTO_NAO_ENCONTRADO_DETAIL = "error.produto.nao-encontrado.detail";
+
+    public static final String PRODUTO_NOME_DUPLICADO_TITLE = "error.produto.nome-duplicado.title";
+    public static final String PRODUTO_NOME_DUPLICADO_DETAIL = "error.produto.nome-duplicado.detail";
 }

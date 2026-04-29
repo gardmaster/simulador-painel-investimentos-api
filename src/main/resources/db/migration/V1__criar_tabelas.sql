@@ -27,6 +27,7 @@ CREATE TABLE produtos (
     data_atualizacao DATETIME2(6) NOT NULL,
 
     CONSTRAINT pk_produtos PRIMARY KEY (id),
+    CONSTRAINT uk_produtos_nome UNIQUE (nome),
     CONSTRAINT ck_produtos_tipo_produto CHECK (
         tipo_produto IN ('CDB', 'LCI', 'LCA', 'TESOURO_DIRETO_SELIC','FIA', 'FII', 'CRI', 'CRA', 'DEBENTURE')
     ),
