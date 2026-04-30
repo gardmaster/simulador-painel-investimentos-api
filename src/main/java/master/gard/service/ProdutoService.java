@@ -1,10 +1,14 @@
 package master.gard.service;
 
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import io.quarkus.panache.common.Page;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import master.gard.dto.request.ProdutoFiltroRequest;
 import master.gard.dto.request.ProdutoRequest;
+import master.gard.dto.response.PagedResponse;
 import master.gard.dto.response.ProdutoResponse;
 import master.gard.exception.ProdutoExistenteException;
 import master.gard.exception.ProdutoNaoEncontradoException;
@@ -27,13 +31,25 @@ public class ProdutoService implements PanacheRepository<Produto> {
     }
 
     @Transactional
-    public List<ProdutoResponse> listarProdutos() {
+    public PagedResponse<ProdutoResponse> listarProdutos(ProdutoFiltroRequest filtro) {
         LOG.info("Listando todos os produtos financeiros");
 
-        return produtoRepository.listAll()
-                .stream()
+        validarRentabilidadeFiltrada(filtro.getRentabilidadeMin(), filtro.getRentabilidadeMax());
+
+        PanacheQuery<Produto> query = produtoRepository.buscarFiltrado(filtro);
+        query.page(Page.of(filtro.getPage() - 1, filtro.getPageSize()));
+
+        List<ProdutoResponse> produtos = query.list().stream()
                 .map(ProdutoResponse::fromEntity)
                 .toList();
+
+        return new PagedResponse<>(
+                produtos,
+                filtro.getPage(),
+                filtro.getPageSize(),
+                query.count(),
+                query.pageCount()
+        );
     }
 
     @Transactional
@@ -98,6 +114,14 @@ public class ProdutoService implements PanacheRepository<Produto> {
         if (exists) {
             LOG.warnf("Produto de mesmo nome encontrado para outro ID: %s", nome);
             throw new ProdutoExistenteException(nome);
+        }
+    }
+
+    private void validarRentabilidadeFiltrada(Double rentabilidadeMin, Double rentabilidadeMax) {
+        LOG.infof("Validando rentabilidade filtrada: min=%s, max=%s", rentabilidadeMin, rentabilidadeMax);
+        if (rentabilidadeMin != null && rentabilidadeMax != null && rentabilidadeMin > rentabilidadeMax) {
+            LOG.warnf("Rentabilidade mínima maior que máxima: min=%s, max=%s", rentabilidadeMin, rentabilidadeMax);
+            throw new IllegalArgumentException("A rentabilidade mínima não pode ser maior que a máxima.");
         }
     }
 }

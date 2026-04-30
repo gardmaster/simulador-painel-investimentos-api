@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import master.gard.dto.request.ProdutoFiltroRequest;
 import master.gard.dto.request.ProdutoRequest;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
@@ -18,7 +19,7 @@ public interface ProdutoResourceI {
     @GET
     @RolesAllowed("admin")
     @Tag(name = "Listar Produtos", description = "Retorna uma lista de todos os produtos financeiros disponíveis")
-    Response listarProdutos();
+    Response listarProdutos(@BeanParam ProdutoFiltroRequest filtro);
 
     @GET
     @Path("/{id}")
