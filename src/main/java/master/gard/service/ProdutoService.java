@@ -12,6 +12,7 @@ import master.gard.dto.response.PagedResponse;
 import master.gard.dto.response.ProdutoResponse;
 import master.gard.exception.ProdutoExistenteException;
 import master.gard.exception.ProdutoNaoEncontradoException;
+import master.gard.exception.RentabilidadeProdutoInvertidaException;
 import master.gard.model.Produto;
 import master.gard.repository.ProdutoRepository;
 import org.jboss.logging.Logger;
@@ -120,8 +121,7 @@ public class ProdutoService implements PanacheRepository<Produto> {
     private void validarRentabilidadeFiltrada(Double rentabilidadeMin, Double rentabilidadeMax) {
         LOG.infof("Validando rentabilidade filtrada: min=%s, max=%s", rentabilidadeMin, rentabilidadeMax);
         if (rentabilidadeMin != null && rentabilidadeMax != null && rentabilidadeMin > rentabilidadeMax) {
-            LOG.warnf("Rentabilidade mínima maior que máxima: min=%s, max=%s", rentabilidadeMin, rentabilidadeMax);
-            throw new IllegalArgumentException("A rentabilidade mínima não pode ser maior que a máxima.");
+            throw new RentabilidadeProdutoInvertidaException(rentabilidadeMin, rentabilidadeMax);
         }
     }
 }
