@@ -6,29 +6,25 @@ import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.QueryParam;
 import lombok.Getter;
 import lombok.Setter;
-import master.gard.model.enums.ProdutoRisco;
-import master.gard.model.enums.sort.ProdutoSortBy;
+import master.gard.model.enums.PerfilRisco;
 import master.gard.model.enums.SortDirection;
-import master.gard.model.enums.TipoProduto;
+import master.gard.model.enums.sort.ClienteSortBy;
 
 @Getter
 @Setter
-public class ProdutoFiltroRequest {
+public class ClienteFiltroRequest {
 
     @QueryParam("nome")
     private String nome;
 
-    @QueryParam("tipo-produto")
-    private TipoProduto tipoProduto;
+    @QueryParam("documento")
+    private String documento;
 
-    @QueryParam("produto-risco")
-    private ProdutoRisco produtoRisco;
+    @QueryParam("email")
+    private String email;
 
-    @QueryParam("rentabilidade-min")
-    private Double rentabilidadeMin;
-
-    @QueryParam("rentabilidade-max")
-    private Double rentabilidadeMax;
+    @QueryParam("perfil-risco")
+    private PerfilRisco perfilRisco;
 
     @Min(1)
     @DefaultValue("1")
@@ -41,9 +37,9 @@ public class ProdutoFiltroRequest {
     @QueryParam("pageSize")
     private Integer pageSize;
 
-    @DefaultValue("RENTABILIDADE_MENSAL")
+    @DefaultValue("NOME")
     @QueryParam("sortBy")
-    private ProdutoSortBy sortBy;
+    private ClienteSortBy sortBy;
 
     @DefaultValue("DESC")
     @QueryParam("sortDirection")

@@ -1,4 +1,4 @@
-package master.gard.model.enums;
+package master.gard.model.enums.sort;
 
 public enum ProdutoSortBy {
     ID,

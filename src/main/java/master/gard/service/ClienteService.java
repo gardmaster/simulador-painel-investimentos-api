@@ -1,10 +1,14 @@
 package master.gard.service;
 
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
+import io.quarkus.panache.common.Page;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import master.gard.dto.request.ClienteFiltroRequest;
 import master.gard.dto.request.ClienteRequest;
 import master.gard.dto.response.ClienteResponse;
+import master.gard.dto.response.PagedResponse;
 import master.gard.exception.*;
 import master.gard.model.Cliente;
 import master.gard.repository.ClienteRepository;
@@ -28,13 +32,23 @@ public class ClienteService {
     }
 
     @Transactional
-    public List<ClienteResponse> listarClientes() {
+    public PagedResponse<ClienteResponse> listarClientes(ClienteFiltroRequest filtro) {
         LOG.info("Listando todos os clientes");
 
-        return clienteRepository.listAll()
-                .stream()
+        PanacheQuery<Cliente> query = clienteRepository.buscarFiltrado(filtro);
+        query.page(Page.of(filtro.getPage() - 1, filtro.getPageSize()));
+
+        List<ClienteResponse> clientes = query.list().stream()
                 .map(ClienteResponse::fromEntity)
                 .toList();
+
+        return new PagedResponse<>(
+                clientes,
+                filtro.getPage(),
+                filtro.getPageSize(),
+                query.count(),
+                query.pageCount()
+        );
     }
 
     @Transactional

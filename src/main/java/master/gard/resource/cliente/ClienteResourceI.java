@@ -7,6 +7,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import master.gard.dto.exception.ProblemDetails;
+import master.gard.dto.request.ClienteFiltroRequest;
 import master.gard.dto.request.ClienteRequest;
 import master.gard.dto.response.ClienteResponse;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -39,7 +40,7 @@ public interface ClienteResourceI {
                     schema = @Schema(implementation = ClienteResponse.class, type = SchemaType.ARRAY)
             )
     )
-    Response listarClientes();
+    Response listarClientes(@BeanParam ClienteFiltroRequest filtro);
 
     @GET
     @RolesAllowed("admin")
@@ -249,5 +250,4 @@ public interface ClienteResourceI {
             @Valid @NotNull ClienteRequest request
     );
 
-    // TODO: Criar o endpoint DELETE quando eu conseguir validar que o produto não possui associações com simulações ou investimentos.
 }
