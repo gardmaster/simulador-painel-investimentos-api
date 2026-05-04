@@ -25,8 +25,8 @@ public record ProdutoResponse(
             return new ProdutoResponse(
                     produto.getId(),
                     produto.getNome(),
-                    produto.getTipoProduto().getDescricao(),
-                    produto.getProdutoRisco().getDescricao(),
+                    produto.getTipoProduto().name(),
+                    produto.getProdutoRisco().name(),
                     produto.getRentabilidadeMensal()
             );
         }

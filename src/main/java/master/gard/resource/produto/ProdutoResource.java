@@ -2,6 +2,7 @@ package master.gard.resource.produto;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
+import master.gard.dto.request.ProdutoFiltroRequest;
 import master.gard.dto.request.ProdutoRequest;
 import master.gard.service.ProdutoService;
 
@@ -15,8 +16,8 @@ public class ProdutoResource implements ProdutoResourceI {
     }
 
     @Override
-    public Response listarProdutos() {
-        return Response.ok().entity(service.listarProdutos()).build();
+    public Response listarProdutos(ProdutoFiltroRequest filtro) {
+        return Response.ok().entity(service.listarProdutos(filtro)).build();
     }
 
     @Override

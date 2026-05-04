@@ -30,4 +30,7 @@ public final class MessageKeys {
 
     public static final String PRODUTO_NOME_DUPLICADO_TITLE = "error.produto.nome-duplicado.title";
     public static final String PRODUTO_NOME_DUPLICADO_DETAIL = "error.produto.nome-duplicado.detail";
+
+    public static final String RENTABILIDADE_PRODUTO_INVERTIDA_TITLE = "erro.produto.rentabilidade-invertida.title";
+    public static final String RENTABILIDADE_PRODUTO_INVERTIDA_DETAIL = "erro.produto.rentabilidade-invertida.detail";
 }
