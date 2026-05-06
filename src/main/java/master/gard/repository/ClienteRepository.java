@@ -85,7 +85,7 @@ public class ClienteRepository implements PanacheRepository<Cliente> {
 
     private String resolverDirecao(SortDirection sortDirection) {
         if (sortDirection == null) {
-            return "desc";
+            return "asc";
         }
 
         return sortDirection.getValue();

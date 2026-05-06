@@ -41,11 +41,9 @@ public class ProdutoFiltroRequest {
     @QueryParam("pageSize")
     private Integer pageSize;
 
-    @DefaultValue("RENTABILIDADE_MENSAL")
     @QueryParam("sortBy")
     private ProdutoSortBy sortBy;
 
-    @DefaultValue("DESC")
     @QueryParam("sortDirection")
     private SortDirection sortDirection;
 

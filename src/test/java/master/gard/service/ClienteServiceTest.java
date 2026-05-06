@@ -3,8 +3,8 @@ package master.gard.service;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import master.gard.dto.request.ClienteFiltroRequest;
 import master.gard.dto.request.ClienteRequest;
+import master.gard.dto.response.ClientePageResponse;
 import master.gard.dto.response.ClienteResponse;
-import master.gard.dto.response.PagedResponse;
 import master.gard.exception.*;
 import master.gard.model.Cliente;
 import master.gard.model.enums.PerfilRisco;
@@ -80,7 +80,7 @@ class ClienteServiceTest {
         when(panacheQueryMock.list()).thenReturn(List.of(cliente1, cliente2));
 
 
-        PagedResponse<ClienteResponse> resposta = clienteServiceInjectedMock.listarClientes(clienteFiltroRequestMock);
+        ClientePageResponse resposta = clienteServiceInjectedMock.listarClientes(clienteFiltroRequestMock);
 
         assertNotNull(resposta);
         assertNotNull(resposta.data());
@@ -97,7 +97,7 @@ class ClienteServiceTest {
         when(clienteRepositoryMock.buscarFiltrado(clienteFiltroRequestMock)).thenReturn(panacheQueryMock);
         when(panacheQueryMock.list()).thenReturn(List.of());
 
-        PagedResponse<ClienteResponse> resposta = clienteServiceInjectedMock.listarClientes(clienteFiltroRequestMock);
+        ClientePageResponse resposta = clienteServiceInjectedMock.listarClientes(clienteFiltroRequestMock);
 
         assertNotNull(resposta);
         assertNotNull(resposta.data());

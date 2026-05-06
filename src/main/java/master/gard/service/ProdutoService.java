@@ -8,7 +8,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import master.gard.dto.request.ProdutoFiltroRequest;
 import master.gard.dto.request.ProdutoRequest;
-import master.gard.dto.response.PagedResponse;
+import master.gard.dto.response.ProdutoPageResponse;
 import master.gard.dto.response.ProdutoResponse;
 import master.gard.exception.ProdutoExistenteException;
 import master.gard.exception.ProdutoNaoEncontradoException;
@@ -32,7 +32,7 @@ public class ProdutoService implements PanacheRepository<Produto> {
     }
 
     @Transactional
-    public PagedResponse<ProdutoResponse> listarProdutos(ProdutoFiltroRequest filtro) {
+    public ProdutoPageResponse listarProdutos(ProdutoFiltroRequest filtro) {
         LOG.info("Listando todos os produtos financeiros");
 
         validarRentabilidadeFiltrada(filtro.getRentabilidadeMin(), filtro.getRentabilidadeMax());
@@ -44,12 +44,9 @@ public class ProdutoService implements PanacheRepository<Produto> {
                 .map(ProdutoResponse::fromEntity)
                 .toList();
 
-        return new PagedResponse<>(
+        return new ProdutoPageResponse(
                 produtos,
-                filtro.getPage(),
-                filtro.getPageSize(),
-                query.count(),
-                query.pageCount()
+                new master.gard.dto.response.PageResponse(filtro.getPage(), filtro.getPageSize(), query.count(), query.pageCount())
         );
     }
 
