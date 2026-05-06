@@ -37,4 +37,6 @@ public interface ProdutoResourceI {
     @RolesAllowed("admin")
     @Tag(name = "Atualizar Produto", description = "Permite a atualização dos detalhes de um produto financeiro existente")
     Response atualizarProduto(@PathParam("id") Long id, @Valid @NotNull ProdutoRequest request);
+
+    // TODO: Criar o endpoint DELETE quando eu conseguir validar que o produto não possui associações com simulações ou investimentos.
 }

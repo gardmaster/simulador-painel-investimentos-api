@@ -1,13 +1,17 @@
 package master.gard.service;
 
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
+import master.gard.dto.request.ClienteFiltroRequest;
 import master.gard.dto.request.ClienteRequest;
 import master.gard.dto.response.ClienteResponse;
+import master.gard.dto.response.PagedResponse;
 import master.gard.exception.*;
 import master.gard.model.Cliente;
 import master.gard.model.enums.PerfilRisco;
 import master.gard.repository.ClienteRepository;
 import master.gard.util.DocumentoUtil;
 import master.gard.util.JwtUtil;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,35 +55,55 @@ class ClienteServiceTest {
     @Mock
     private JwtUtil jwtUtilMock;
 
+    @Mock
+    private ClienteFiltroRequest clienteFiltroRequestMock;
+
+    @Mock
+    private PanacheQuery<Cliente> panacheQueryMock;
+
     @InjectMocks
     private ClienteService clienteServiceInjectedMock;
+
+    @BeforeEach
+    void setup() {
+        clienteFiltroRequestMock = new ClienteFiltroRequest();
+        clienteFiltroRequestMock.setPage(1);
+        clienteFiltroRequestMock.setPageSize(5);
+    }
 
     @Test
     @DisplayName("Deve retornar lista de clientes response quando existirem clientes cadastrados")
     void deveRetornarListaClientes_quandoExistiremClientesCadastrados() {
         Cliente cliente1 = montarCliente(ID_CLIENTE_1, NOME_CLIENTE_1, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_1, PERFIL_CLIENTE_1);
         Cliente cliente2 = montarCliente(ID_CLIENTE_2, NOME_CLIENTE_2, DOCUMENTO_CLIENTE_2, EMAIL_CLIENTE_2, PERFIL_CLIENTE_2);
-        when(clienteRepositoryMock.listAll()).thenReturn(List.of(cliente1, cliente2));
+        when(clienteRepositoryMock.buscarFiltrado(clienteFiltroRequestMock)).thenReturn(panacheQueryMock);
+        when(panacheQueryMock.list()).thenReturn(List.of(cliente1, cliente2));
 
-        List<ClienteResponse> resposta = clienteServiceInjectedMock.listarClientes();
+
+        PagedResponse<ClienteResponse> resposta = clienteServiceInjectedMock.listarClientes(clienteFiltroRequestMock);
 
         assertNotNull(resposta);
-        assertEquals(2, resposta.size());
-        assertEquals(NOME_CLIENTE_1, resposta.getFirst().nome());
-        assertEquals(NOME_CLIENTE_2, resposta.get(1).nome());
-        verify(clienteRepositoryMock).listAll();
+        assertNotNull(resposta.data());
+        assertEquals(2, resposta.data().size());
+        assertEquals(NOME_CLIENTE_1, resposta.data().getFirst().nome());
+        assertEquals(NOME_CLIENTE_2, resposta.data().get(1).nome());
+        verify(clienteRepositoryMock).buscarFiltrado(clienteFiltroRequestMock);
+        verify(panacheQueryMock).list();
     }
 
     @Test
     @DisplayName("Deve retornar lista vazia quando não existirem clientes cadastrados")
     void deveRetornarListaVazia_quandoNaoExistiremClientesCadastrados() {
-        when(clienteRepositoryMock.listAll()).thenReturn(List.of());
+        when(clienteRepositoryMock.buscarFiltrado(clienteFiltroRequestMock)).thenReturn(panacheQueryMock);
+        when(panacheQueryMock.list()).thenReturn(List.of());
 
-        List<ClienteResponse> resposta = clienteServiceInjectedMock.listarClientes();
+        PagedResponse<ClienteResponse> resposta = clienteServiceInjectedMock.listarClientes(clienteFiltroRequestMock);
 
         assertNotNull(resposta);
-        assertTrue(resposta.isEmpty());
-        verify(clienteRepositoryMock).listAll();
+        assertNotNull(resposta.data());
+        assertTrue(resposta.data().isEmpty());
+        verify(clienteRepositoryMock).buscarFiltrado(clienteFiltroRequestMock);
+        verify(panacheQueryMock).list();
     }
 
     @Test
@@ -233,7 +257,7 @@ class ClienteServiceTest {
 
     @Test
     @DisplayName("Deve lancar EmailExistenteException ao tentar atualizar cadastro com email já existente para outro cliente")
-    void deveLancarEmailExistenteException_quandoAtualizarCadastroComEmailExistente(){
+    void deveLancarEmailExistenteException_quandoAtualizarCadastroComEmailExistente() {
         ClienteRequest request = montarRequestPadrao();
         Cliente clienteExistente = montarCliente(ID_CLIENTE_1, NOME_CLIENTE_1, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_1, PERFIL_CLIENTE_1);
 

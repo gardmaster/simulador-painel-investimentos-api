@@ -8,7 +8,6 @@ import jakarta.ws.rs.ext.Provider;
 import master.gard.config.MessageKeys;
 import master.gard.config.Messages;
 import master.gard.dto.exception.ProblemDetails;
-import master.gard.exception.DocumentoExistenteException;
 import master.gard.exception.ProdutoExistenteException;
 import org.jboss.logging.Logger;
 

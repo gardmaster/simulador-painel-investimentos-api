@@ -2,6 +2,7 @@ package master.gard.resource.cliente;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
+import master.gard.dto.request.ClienteFiltroRequest;
 import master.gard.dto.request.ClienteRequest;
 import master.gard.service.ClienteService;
 
@@ -15,8 +16,8 @@ public class ClienteResource implements ClienteResourceI {
     }
 
     @Override
-    public Response listarClientes() {
-        return Response.ok(service.listarClientes()).build();
+    public Response listarClientes(ClienteFiltroRequest filtro) {
+        return Response.ok(service.listarClientes(filtro)).build();
     }
 
     @Override
