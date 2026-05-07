@@ -33,4 +33,13 @@ public final class MessageKeys {
 
     public static final String RENTABILIDADE_PRODUTO_INVERTIDA_TITLE = "erro.produto.rentabilidade-invertida.title";
     public static final String RENTABILIDADE_PRODUTO_INVERTIDA_DETAIL = "erro.produto.rentabilidade-invertida.detail";
+
+    public static final String NAO_AUTENTICADO_TITLE = "error.auth.nao-autenticado.title";
+    public static final String NAO_AUTENTICADO_DETAIL = "error.auth.nao-autenticado.detail";
+
+    public static final String ACESSO_NEGADO_TITLE = "error.auth.acesso-negado.title";
+    public static final String ACESSO_NEGADO_DETAIL = "error.auth.acesso-negado.detail";
+
+    public static final String ERRO_INTERNO_TITLE = "error.interno.title";
+    public static final String ERRO_INTERNO_DETAIL = "error.interno.detail";
 }
