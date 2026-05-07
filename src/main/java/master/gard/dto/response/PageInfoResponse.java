@@ -2,8 +2,8 @@ package master.gard.dto.response;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
-@Schema(name = "PageResponse", description = "Informações de paginação para respostas paginadas")
-public record PageResponse(
+@Schema(name = "PageInfoResponse", description = "Informações de paginação para respostas paginadas")
+public record PageInfoResponse(
 
         @Schema(description = "Número da página atual", examples = "1")
         int page,

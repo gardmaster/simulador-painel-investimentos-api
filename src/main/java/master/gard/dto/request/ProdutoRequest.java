@@ -15,11 +15,11 @@ public record ProdutoRequest(
         @Schema(description = "Nome do produto financeiro", examples = "Fundo de Investimento XYZ")
         @NotNull @NotBlank String nome,
 
-        @Schema(description = "Tipo do produto financeiro", examples = "Certificado de Depósito Bancário",
+        @Schema(description = "Tipo do produto financeiro", examples = "CDB",
                 enumeration = {"CDB", "LCI", "LCA", "TESOURO_DIRETO_SELIC", "FIA", "FII", "CRI", "CRA", "DEBENTURE"})
         @NotNull TipoProduto tipoProduto,
 
-        @Schema(description = "Risco associado ao produto financeiro", examples = "Alto Risco",
+        @Schema(description = "Risco associado ao produto financeiro", examples = "ALTO",
                 enumeration = {"BAIXISSIMO", "BAIXO", "MEDIO", "ALTO", "ALTISSIMO"})
         @NotNull ProdutoRisco produtoRisco,
 

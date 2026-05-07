@@ -8,9 +8,10 @@ import java.util.List;
 public record ProdutoPageResponse(
 
         @Schema(description = "Lista de produtos da página atual")
-        List<ProdutoResponse> data,
+        List<ProdutoResponse> produtos,
 
-        PageResponse pageInfo
+        @Schema(description = "Metadados de paginação da consulta")
+        PageInfoResponse pageInfo
 
 ) {
 }

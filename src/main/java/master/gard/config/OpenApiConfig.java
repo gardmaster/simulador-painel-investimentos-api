@@ -18,7 +18,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
                         - Cadastro e gestão de clientes
                         - Simulação de investimentos
                         - Recomendação de investimentos baseados em perfil de risco
-                        - Perfil de risco dinânico com base em comportamento de investimentos e/ou simulações
+                        - Perfil de risco dinâmico com base em comportamento de investimentos e/ou simulações
                         - Telemetria de dados
                         """,
                 contact = @Contact(
@@ -33,5 +33,5 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
                 @Tag(name = "Clientes", description = "Operações de gerenciamento de clientes")
         }
 )
-public class OpenAiConfig extends Application {
+public class OpenApiConfig extends Application {
 }

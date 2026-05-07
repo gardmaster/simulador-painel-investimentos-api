@@ -9,9 +9,9 @@ import jakarta.ws.rs.core.Response;
 import master.gard.dto.exception.ProblemDetails;
 import master.gard.dto.request.ClienteFiltroRequest;
 import master.gard.dto.request.ClienteRequest;
+import master.gard.dto.response.ClientePageResponse;
 import master.gard.dto.response.ClienteResponse;
 import org.eclipse.microprofile.openapi.annotations.Operation;
-import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.ExampleObject;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -29,15 +29,16 @@ public interface ClienteResourceI {
     @GET
     @RolesAllowed("admin")
     @Operation(
-            summary = "Listar todos os clientes",
-            description = "Retorna uma lista com todos os clientes cadastrados no sistema."
+            summary = "Listar clientes",
+            description = "Retorna uma resposta paginada com os clientes cadastrados, " +
+                    "permitindo filtros por nome, documento, e-mail, perfil de risco e ordenação."
     )
     @APIResponse(
             responseCode = "200",
             description = "Lista de clientes retornada com sucesso",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ClienteResponse.class, type = SchemaType.ARRAY)
+                    schema = @Schema(implementation = ClientePageResponse.class)
             )
     )
     Response listarClientes(@BeanParam ClienteFiltroRequest filtro);
@@ -95,9 +96,9 @@ public interface ClienteResourceI {
                             name = "CamposInvalidos",
                             value = """
                                     {
-                                      "title": "Campos inválidos",
+                                      "title": "Requisição inválida",
                                       "status": 400,
-                                      "detail": "Um ou mais campos estão inválidos. Verifique as violações para mais detalhes.",
+                                      "detail": "Um ou mais campos estão inválidos",
                                       "instance": "http://localhost:8080/api/v1/clientes",
                                       "violations": {
                                         "email": ["O campo 'email' deve ser um endereço válido."],
@@ -146,6 +147,29 @@ public interface ClienteResourceI {
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = ClienteResponse.class)
+            )
+    )
+    @APIResponse(
+            responseCode = "400",
+            description = "Requisição inválida - erro de validação",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ProblemDetails.class),
+                    examples = @ExampleObject(
+                            name = "CamposInvalidos",
+                            value = """
+                                    {
+                                      "title": "Requisição inválida",
+                                      "status": 400,
+                                      "detail": "Um ou mais campos estão inválidos",
+                                      "instance": "http://localhost:8080/api/v1/clientes/1",
+                                      "violations": {
+                                        "email": ["O campo 'email' deve ser um endereço válido."],
+                                        "nome": ["O campo 'nome' é obrigatório."]
+                                      }
+                                    }
+                                    """
+                    )
             )
     )
     @APIResponse(
@@ -225,10 +249,13 @@ public interface ClienteResourceI {
                             name = "CamposInvalidos",
                             value = """
                                     {
-                                      "title": "Conflito de dados",
-                                      "status": 409,
-                                      "detail": "Já existe cliente com este e-mail ou documento.",
-                                      "instance": "http://localhost:8080/api/v1/clientes"
+                                      "title": "Requisição inválida",
+                                      "status": 400,
+                                      "detail": "Um ou mais campos estão inválidos",
+                                      "instance": "http://localhost:8080/api/v1/clientes/me",
+                                      "violations": {
+                                        "email": ["O campo 'email' deve ser um endereço válido."]
+                                      }
                                     }
                                     """
                     )
@@ -237,6 +264,14 @@ public interface ClienteResourceI {
     @APIResponse(
             responseCode = "401",
             description = "Não autorizado - token de autenticação ausente ou inválido",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ProblemDetails.class)
+            )
+    )
+    @APIResponse(
+            responseCode = "409",
+            description = "Conflito - Documento ou e-mail já pertence a outro cliente",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = ProblemDetails.class)

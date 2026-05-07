@@ -83,10 +83,10 @@ class ClienteServiceTest {
         ClientePageResponse resposta = clienteServiceInjectedMock.listarClientes(clienteFiltroRequestMock);
 
         assertNotNull(resposta);
-        assertNotNull(resposta.data());
-        assertEquals(2, resposta.data().size());
-        assertEquals(NOME_CLIENTE_1, resposta.data().getFirst().nome());
-        assertEquals(NOME_CLIENTE_2, resposta.data().get(1).nome());
+        assertNotNull(resposta.clientes());
+        assertEquals(2, resposta.clientes().size());
+        assertEquals(NOME_CLIENTE_1, resposta.clientes().getFirst().nome());
+        assertEquals(NOME_CLIENTE_2, resposta.clientes().get(1).nome());
         verify(clienteRepositoryMock).buscarFiltrado(clienteFiltroRequestMock);
         verify(panacheQueryMock).list();
     }
@@ -100,8 +100,8 @@ class ClienteServiceTest {
         ClientePageResponse resposta = clienteServiceInjectedMock.listarClientes(clienteFiltroRequestMock);
 
         assertNotNull(resposta);
-        assertNotNull(resposta.data());
-        assertTrue(resposta.data().isEmpty());
+        assertNotNull(resposta.clientes());
+        assertTrue(resposta.clientes().isEmpty());
         verify(clienteRepositoryMock).buscarFiltrado(clienteFiltroRequestMock);
         verify(panacheQueryMock).list();
     }

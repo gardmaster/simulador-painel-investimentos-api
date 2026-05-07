@@ -8,6 +8,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import master.gard.dto.request.ProdutoFiltroRequest;
 import master.gard.dto.request.ProdutoRequest;
+import master.gard.dto.response.PageInfoResponse;
 import master.gard.dto.response.ProdutoPageResponse;
 import master.gard.dto.response.ProdutoResponse;
 import master.gard.exception.ProdutoExistenteException;
@@ -46,7 +47,7 @@ public class ProdutoService implements PanacheRepository<Produto> {
 
         return new ProdutoPageResponse(
                 produtos,
-                new master.gard.dto.response.PageResponse(filtro.getPage(), filtro.getPageSize(), query.count(), query.pageCount())
+                new PageInfoResponse(filtro.getPage(), filtro.getPageSize(), query.count(), query.pageCount())
         );
     }
 

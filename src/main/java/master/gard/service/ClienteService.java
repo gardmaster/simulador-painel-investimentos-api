@@ -9,7 +9,7 @@ import master.gard.dto.request.ClienteFiltroRequest;
 import master.gard.dto.request.ClienteRequest;
 import master.gard.dto.response.ClientePageResponse;
 import master.gard.dto.response.ClienteResponse;
-import master.gard.dto.response.PageResponse;
+import master.gard.dto.response.PageInfoResponse;
 import master.gard.exception.*;
 import master.gard.model.Cliente;
 import master.gard.repository.ClienteRepository;
@@ -45,7 +45,7 @@ public class ClienteService {
 
         return new ClientePageResponse(
                 clientes,
-                new PageResponse(filtro.getPage(), filtro.getPageSize(), query.count(), query.pageCount())
+                new PageInfoResponse(filtro.getPage(), filtro.getPageSize(), query.count(), query.pageCount())
         );
     }
 

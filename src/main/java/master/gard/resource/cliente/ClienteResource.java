@@ -26,10 +26,9 @@ public class ClienteResource implements ClienteResourceI {
     }
 
 
-    //TODO: VERIFICAR MELHOR FORMA DE RETORNAR O STATUS CERTO POR REQUISIÇÃO
     @Override
     public Response cadastrarCliente(ClienteRequest request) {
-        return Response.ok().entity(service.cadastrarCliente(request)).build();
+        return Response.ok(Response.Status.CREATED).entity(service.cadastrarCliente(request)).build();
     }
 
     @Override

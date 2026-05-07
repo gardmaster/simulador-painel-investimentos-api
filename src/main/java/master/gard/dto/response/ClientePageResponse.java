@@ -8,9 +8,10 @@ import java.util.List;
 public record ClientePageResponse(
 
         @Schema(description = "Lista de clientes da página atual")
-        List<ClienteResponse> data,
+        List<ClienteResponse> clientes,
 
-        PageResponse pageInfo
+        @Schema(description = "Metadados de paginação da consulta")
+        PageInfoResponse pageInfo
 
 ) {
 }
