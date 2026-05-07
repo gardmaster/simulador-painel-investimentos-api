@@ -12,10 +12,10 @@ public record ProdutoResponse(
         @Schema(description = "Nome do produto financeiro", examples = "Fundo de Investimento XYZ")
         String nome,
 
-        @Schema(description = "Tipo do produto financeiro", examples = "Certificado de Depósito Bancário")
+        @Schema(description = "Tipo do produto financeiro", examples = "CDB")
         String tipoProduto,
 
-        @Schema(description = "Risco associado ao produto financeiro", examples = "Alto Risco")
+        @Schema(description = "Risco associado ao produto financeiro", examples = "ALTO")
         String produtoRisco,
 
         @Schema(description = "Rentabilidade mensal do produto financeiro", examples = "0.5")

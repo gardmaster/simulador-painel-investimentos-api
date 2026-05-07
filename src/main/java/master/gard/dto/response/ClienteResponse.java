@@ -19,7 +19,8 @@ public record ClienteResponse(
         @Schema(description = "CPF ou CNPJ formatado", examples = "123.456.789-01")
         String documento,
 
-        @Schema(description = "Perfil de risco do investidor", examples = "CONSERVADOR")
+        @Schema(description = "Perfil de risco do investidor", examples = "CONSERVADOR",
+                enumeration = {"CONSERVADOR", "MODERADO", "ARROJADO", "AGRESSIVO", "NAO_CLASSIFICADO"})
         String perfilRisco
 ) {
     public static ClienteResponse fromEntity(Cliente cliente) {

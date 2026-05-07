@@ -7,8 +7,9 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import master.gard.dto.request.ClienteFiltroRequest;
 import master.gard.dto.request.ClienteRequest;
+import master.gard.dto.response.ClientePageResponse;
 import master.gard.dto.response.ClienteResponse;
-import master.gard.dto.response.PagedResponse;
+import master.gard.dto.response.PageInfoResponse;
 import master.gard.exception.*;
 import master.gard.model.Cliente;
 import master.gard.repository.ClienteRepository;
@@ -32,7 +33,7 @@ public class ClienteService {
     }
 
     @Transactional
-    public PagedResponse<ClienteResponse> listarClientes(ClienteFiltroRequest filtro) {
+    public ClientePageResponse listarClientes(ClienteFiltroRequest filtro) {
         LOG.info("Listando todos os clientes");
 
         PanacheQuery<Cliente> query = clienteRepository.buscarFiltrado(filtro);
@@ -42,12 +43,9 @@ public class ClienteService {
                 .map(ClienteResponse::fromEntity)
                 .toList();
 
-        return new PagedResponse<>(
+        return new ClientePageResponse(
                 clientes,
-                filtro.getPage(),
-                filtro.getPageSize(),
-                query.count(),
-                query.pageCount()
+                new PageInfoResponse(filtro.getPage(), filtro.getPageSize(), query.count(), query.pageCount())
         );
     }
 

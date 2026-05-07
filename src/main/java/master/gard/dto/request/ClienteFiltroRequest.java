@@ -37,11 +37,9 @@ public class ClienteFiltroRequest {
     @QueryParam("pageSize")
     private Integer pageSize;
 
-    @DefaultValue("NOME")
     @QueryParam("sortBy")
     private ClienteSortBy sortBy;
 
-    @DefaultValue("DESC")
     @QueryParam("sortDirection")
     private SortDirection sortDirection;
 
