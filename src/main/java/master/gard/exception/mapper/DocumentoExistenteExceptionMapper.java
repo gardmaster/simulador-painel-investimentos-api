@@ -1,43 +1,30 @@
 package master.gard.exception.mapper;
 
-import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import master.gard.config.MessageKeys;
 import master.gard.config.Messages;
-import master.gard.dto.exception.ProblemDetails;
 import master.gard.exception.DocumentoExistenteException;
-import org.jboss.logging.Logger;
 
 @Provider
-public class DocumentoExistenteExceptionMapper implements ExceptionMapper<DocumentoExistenteException> {
-
-    private static final Logger LOG = Logger.getLogger(DocumentoExistenteExceptionMapper.class);
-
-    @Context
-    UriInfo uriInfo;
-
-    private final Messages msg;
+public class DocumentoExistenteExceptionMapper extends BaseExceptionMapper
+        implements ExceptionMapper<DocumentoExistenteException> {
 
     public DocumentoExistenteExceptionMapper(Messages msg) {
-        this.msg = msg;
+        super(msg);
     }
 
     @Override
     public Response toResponse(DocumentoExistenteException exception) {
-        LOG.warnf("Documento duplicado encontrado: %s", exception.getDocumento());
 
-        ProblemDetails problemDetails = ProblemDetails.builder()
-                .status(Response.Status.CONFLICT.getStatusCode())
-                .title(msg.get(MessageKeys.CLIENTE_DOCUMENTO_DUPLICADO_TITLE))
-                .detail(msg.get(MessageKeys.CLIENTE_DOCUMENTO_DUPLICADO_DETAIL))
-                .instance(uriInfo != null ? uriInfo.getRequestUri().toString() : "")
-                .build();
+        log.warnf("Documento duplicado encontrado: %s", exception.getDocumento());
 
-        return Response.status(Response.Status.CONFLICT)
-                .entity(problemDetails)
-                .build();
+        return buildResponse(
+                Response.Status.CONFLICT,
+                msg.get(MessageKeys.CLIENTE_DOCUMENTO_DUPLICADO_TITLE),
+                msg.format(MessageKeys.CLIENTE_DOCUMENTO_DUPLICADO_DETAIL, exception.getDocumento())
+        );
+
     }
 }
