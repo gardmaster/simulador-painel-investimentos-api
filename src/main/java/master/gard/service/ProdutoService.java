@@ -14,6 +14,7 @@ import master.gard.dto.response.ProdutoResponse;
 import master.gard.exception.ProdutoExistenteException;
 import master.gard.exception.ProdutoNaoEncontradoException;
 import master.gard.exception.RentabilidadeProdutoInvertidaException;
+import master.gard.mapper.produto.ProdutoMapper;
 import master.gard.model.Produto;
 import master.gard.repository.ProdutoRepository;
 import org.jboss.logging.Logger;
@@ -26,10 +27,12 @@ public class ProdutoService implements PanacheRepository<Produto> {
     private static final Logger LOG = Logger.getLogger(ProdutoService.class);
 
     private final ProdutoRepository produtoRepository;
+    private final ProdutoMapper produtoMapper;
 
     @Inject
-    public ProdutoService(ProdutoRepository produtoRepository) {
+    public ProdutoService(ProdutoRepository produtoRepository, ProdutoMapper produtoMapper) {
         this.produtoRepository = produtoRepository;
+        this.produtoMapper = produtoMapper;
     }
 
     @Transactional
@@ -41,9 +44,7 @@ public class ProdutoService implements PanacheRepository<Produto> {
         PanacheQuery<Produto> query = produtoRepository.buscarFiltrado(filtro);
         query.page(Page.of(filtro.getPage() - 1, filtro.getPageSize()));
 
-        List<ProdutoResponse> produtos = query.list().stream()
-                .map(ProdutoResponse::fromEntity)
-                .toList();
+        List<ProdutoResponse> produtos = produtoMapper.toResponseList(query.list());
 
         return new ProdutoPageResponse(
                 produtos,
@@ -56,7 +57,7 @@ public class ProdutoService implements PanacheRepository<Produto> {
         LOG.infof("Recuperando produto financeiro com ID: %d", id);
 
         return produtoRepository.findByIdOptional(id)
-                .map(ProdutoResponse::fromEntity)
+                .map(produtoMapper::toResponse)
                 .orElseThrow(() -> new ProdutoNaoEncontradoException(id));
     }
 
@@ -65,16 +66,17 @@ public class ProdutoService implements PanacheRepository<Produto> {
         LOG.infof("Cadastrando novo produto financeiro: %s", request.nome());
         validarProdutoExistente(request.nome());
 
-        Produto produto = ProdutoRequest.toEntity(request);
+        Produto produto = produtoMapper.toEntity(request);
         produtoRepository.persist(produto);
         LOG.infof("Produto financeiro persistido com ID: %d", produto.getId());
 
-        return ProdutoResponse.fromEntity(produto);
+        return produtoMapper.toResponse(produto);
     }
 
     @Transactional
     public ProdutoResponse atualizarProduto(Long id, ProdutoRequest request) {
         LOG.infof("Atualizando produto financeiro com ID: %d", id);
+
         Produto produto = produtoRepository.findByIdOptional(id)
                 .orElseThrow(() -> new ProdutoNaoEncontradoException(id));
 
@@ -82,18 +84,12 @@ public class ProdutoService implements PanacheRepository<Produto> {
             validarProdutoExistenteUpdate(request.nome(), id);
         }
 
-        produto.setNome(request.nome());
-        produto.setTipoProduto(request.tipoProduto());
-        produto.setProdutoRisco(request.produtoRisco());
-        produto.setRentabilidadeMensal(request.rentabilidadeMensal());
+        produtoMapper.updateEntityFromRequest(request, produto);
         produtoRepository.persist(produto);
         LOG.infof("Produto financeiro atualizado com ID: %d", produto.getId());
 
-        return ProdutoResponse.fromEntity(produto);
+        return produtoMapper.toResponse(produto);
     }
-
-
-
 
     private void validarProdutoExistente(String nome) {
         LOG.infof("Validando existência de produto financeiro com nome: %s", nome);

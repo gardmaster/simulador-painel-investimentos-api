@@ -1,7 +1,9 @@
 package master.gard.dto.request;
 
-import jakarta.validation.constraints.*;
-import master.gard.model.Produto;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import master.gard.model.enums.ProdutoRisco;
 import master.gard.model.enums.TipoProduto;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -26,12 +28,4 @@ public record ProdutoRequest(
         @Schema(description = "Rentabilidade mensal do produto financeiro", examples = "0.5")
         @NotNull @Positive @Digits(integer = 3, fraction = 2, message = "{validation.produto.rentabilidade.invalida}") Double rentabilidadeMensal
 ) {
-        public static Produto toEntity(ProdutoRequest request) {
-                var produto = new Produto();
-                produto.setNome(request.nome());
-                produto.setTipoProduto(request.tipoProduto());
-                produto.setProdutoRisco(request.produtoRisco());
-                produto.setRentabilidadeMensal(request.rentabilidadeMensal());
-                return produto;
-        }
 }
