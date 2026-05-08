@@ -3,7 +3,6 @@ package master.gard.dto.request;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import master.gard.model.Cliente;
 import master.gard.model.enums.PerfilRisco;
 import master.gard.validation.CpfCnpj;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -29,12 +28,4 @@ public record ClienteRequest(
 
 ) {
 
-    public static Cliente toEntity(ClienteRequest request) {
-        var cliente = new Cliente();
-        cliente.setNome(request.nome());
-        cliente.setDocumento(request.documento());
-        cliente.setEmail(request.email());
-        cliente.setPerfilRisco(request.perfilRisco());
-        return cliente;
-    }
 }
