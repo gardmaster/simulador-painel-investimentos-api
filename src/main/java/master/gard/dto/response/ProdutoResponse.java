@@ -1,6 +1,5 @@
 package master.gard.dto.response;
 
-import master.gard.model.Produto;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Schema(description = "Dados retornados de um produto financeiro")
@@ -19,16 +18,7 @@ public record ProdutoResponse(
         String produtoRisco,
 
         @Schema(description = "Rentabilidade mensal do produto financeiro", examples = "0.5")
-        Double rentabilidadeMensal) {
-
-        public static ProdutoResponse fromEntity(Produto produto) {
-            return new ProdutoResponse(
-                    produto.getId(),
-                    produto.getNome(),
-                    produto.getTipoProduto().name(),
-                    produto.getProdutoRisco().name(),
-                    produto.getRentabilidadeMensal()
-            );
-        }
+        Double rentabilidadeMensal
+) {
 
 }
