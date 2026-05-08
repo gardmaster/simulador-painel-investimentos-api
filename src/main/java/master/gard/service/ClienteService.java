@@ -11,6 +11,7 @@ import master.gard.dto.response.ClientePageResponse;
 import master.gard.dto.response.ClienteResponse;
 import master.gard.dto.response.PageInfoResponse;
 import master.gard.exception.*;
+import master.gard.mapper.cliente.ClienteMapper;
 import master.gard.model.Cliente;
 import master.gard.repository.ClienteRepository;
 import master.gard.util.JwtUtil;
@@ -23,13 +24,16 @@ import java.util.Optional;
 public class ClienteService {
 
     private static final Logger LOG = Logger.getLogger(ClienteService.class);
+
     private final ClienteRepository clienteRepository;
     private final JwtUtil jwtUtil;
+    private final ClienteMapper clienteMapper;
 
     @Inject
-    public ClienteService(ClienteRepository clienteRepository, JwtUtil jwtUtil) {
+    public ClienteService(ClienteRepository clienteRepository, JwtUtil jwtUtil, ClienteMapper clienteMapper) {
         this.clienteRepository = clienteRepository;
         this.jwtUtil = jwtUtil;
+        this.clienteMapper = clienteMapper;
     }
 
     @Transactional
@@ -39,9 +43,7 @@ public class ClienteService {
         PanacheQuery<Cliente> query = clienteRepository.buscarFiltrado(filtro);
         query.page(Page.of(filtro.getPage() - 1, filtro.getPageSize()));
 
-        List<ClienteResponse> clientes = query.list().stream()
-                .map(ClienteResponse::fromEntity)
-                .toList();
+        List<ClienteResponse> clientes = clienteMapper.toResponseList(query.list());
 
         return new ClientePageResponse(
                 clientes,
@@ -53,7 +55,8 @@ public class ClienteService {
     public ClienteResponse recuperarCliente(Long id) {
         LOG.infof("Recuperando cliente com ID: %d", id);
 
-        return clienteRepository.findByIdOptional(id).map(ClienteResponse::fromEntity)
+        return clienteRepository.findByIdOptional(id)
+                .map(clienteMapper::toResponse)
                 .orElseThrow(() -> new ClienteNaoEncontradoException(id));
     }
 
@@ -69,12 +72,13 @@ public class ClienteService {
         validarEmailCadastrado(request.email());
         LOG.infof("Documento e email validados para cliente: %s", request.nome());
 
-        Cliente cliente = ClienteRequest.toEntity(request);
+        Cliente cliente = clienteMapper.toEntity(request);
         cliente.setAuthUserId(authUserId);
+
         clienteRepository.persist(cliente);
         LOG.infof("Cliente persistido com ID: %d", cliente.getId());
 
-        return ClienteResponse.fromEntity(cliente);
+        return clienteMapper.toResponse(cliente);
     }
 
     @Transactional
@@ -86,14 +90,11 @@ public class ClienteService {
         validarEmailCadastradoParaOutroCliente(request.email(), id);
         LOG.infof("Documento e email validados para atualização do cliente ID: %d", id);
 
-        clienteExistente.setDocumento(request.documento());
-        clienteExistente.setEmail(request.email());
-        clienteExistente.setNome(request.nome());
-        clienteExistente.setPerfilRisco(request.perfilRisco());
+        clienteMapper.updateEntityFromRequest(request, clienteExistente);
         clienteRepository.persist(clienteExistente);
         LOG.infof("Cliente atualizado com ID: %d", id);
 
-        return ClienteResponse.fromEntity(clienteExistente);
+        return clienteMapper.toResponse(clienteExistente);
     }
 
     @Transactional
@@ -104,10 +105,9 @@ public class ClienteService {
         LOG.infof("AuthUserId extraído do token: %s", authUserId);
 
         Cliente cliente = getClienteExistentePorUserAuthId(authUserId);
-
         LOG.infof("Cliente autenticado encontrado: ID %d, Nome: %s", cliente.getId(), cliente.getNome());
 
-        return ClienteResponse.fromEntity(cliente);
+        return clienteMapper.toResponse(cliente);
     }
 
     @Transactional
@@ -123,16 +123,12 @@ public class ClienteService {
         validarEmailCadastradoParaOutroCliente(request.email(), clienteExistente.getId());
         LOG.infof("Documento e email validados para atualização do cliente autenticado ID: %d", clienteExistente.getId());
 
-        clienteExistente.setDocumento(request.documento());
-        clienteExistente.setEmail(request.email());
-        clienteExistente.setNome(request.nome());
-        clienteExistente.setPerfilRisco(request.perfilRisco());
+        clienteMapper.updateEntityFromRequest(request, clienteExistente);
         clienteRepository.persist(clienteExistente);
         LOG.infof("Cadastro do cliente autenticado atualizado com ID: %d", clienteExistente.getId());
 
-        return ClienteResponse.fromEntity(clienteExistente);
+        return clienteMapper.toResponse(clienteExistente);
     }
-
 
     private void validarDocumentoCadastrado(String documento) {
         LOG.infof("Validando se documento '%s' já está cadastrado para outro cliente", documento);
@@ -171,8 +167,10 @@ public class ClienteService {
         return clienteRepository.findByAuthUserIdOptional(authUserId)
                 .orElseThrow(() -> new ClienteAutenticadoSemCadastroException(
                         jwtUtil.getPreferredUsername().orElse("N/A"),
-                        authUserId, jwtUtil.getName().orElse("N/A"),
-                        jwtUtil.getEmail().orElse("N/A")));
+                        authUserId,
+                        jwtUtil.getName().orElse("N/A"),
+                        jwtUtil.getEmail().orElse("N/A")
+                ));
     }
 
     private void validarClienteAutenticadoJaCadastrado(String authUserId) {

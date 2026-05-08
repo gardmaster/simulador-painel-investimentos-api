@@ -1,7 +1,5 @@
 package master.gard.dto.response;
 
-import master.gard.model.Cliente;
-import master.gard.util.DocumentoUtil;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 
@@ -23,15 +21,6 @@ public record ClienteResponse(
                 enumeration = {"CONSERVADOR", "MODERADO", "ARROJADO", "AGRESSIVO", "NAO_CLASSIFICADO"})
         String perfilRisco
 ) {
-    public static ClienteResponse fromEntity(Cliente cliente) {
-        return new ClienteResponse(
-                cliente.getId(),
-                cliente.getNome(),
-                cliente.getEmail(),
-                DocumentoUtil.formatarCpfCnpj(cliente.getDocumento()),
-                cliente.getPerfilRisco().name()
-        );
-    }
 
 }
 
