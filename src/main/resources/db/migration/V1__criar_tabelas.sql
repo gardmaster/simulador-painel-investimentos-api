@@ -13,7 +13,7 @@ CREATE TABLE clientes (
     CONSTRAINT uk_clientes_documento UNIQUE (documento),
     CONSTRAINT uk_clientes_email UNIQUE (email),
     CONSTRAINT ck_clientes_perfil_risco CHECK (
-        perfil_risco IN ('CONSERVADOR', 'MODERADO', 'ARROJADO', 'AGRESSIVO', 'NAO_CLASSIFICADO')
+        perfil_risco IN ('CONSERVADOR', 'MODERADO', 'AGRESSIVO')
     )
 );
 
