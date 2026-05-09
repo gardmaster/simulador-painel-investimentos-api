@@ -1,16 +1,16 @@
 INSERT INTO
     produtos (nome, tipo_produto, produto_risco, rentabilidade_mensal, data_criacao, data_atualizacao)
 VALUES
-    ('CDB Banco Caixa', 'CDB', 'BAIXO', 1.0, GETDATE(), GETDATE()),
-    ('LCI Banco Bradesco', 'LCI', 'BAIXO', 0.9, GETDATE(), GETDATE()),
-    ('LCA Banco Santander', 'LCA', 'BAIXO', 0.85, GETDATE(), GETDATE()),
-    ('Tesouro Direto Selic', 'TESOURO_DIRETO_SELIC', 'BAIXISSIMO', 1.0, GETDATE(), GETDATE()),
-    ('FIA Fundo de Ações Suno Master', 'FIA', 'ALTO', 1.5, GETDATE(), GETDATE()),
-    ('FII Fundo Imobiliário Kinea', 'FII', 'MEDIO', 1.2, GETDATE(), GETDATE()),
-    ('CRI CRI XP', 'CRI', 'ALTO', 1.3, GETDATE(), GETDATE()),
-    ('CRA CRA Itaú', 'CRA', 'ALTO', 1.4, GETDATE(), GETDATE()),
-    ('CDB Banco Master', 'CDB', 'ALTISSIMO', 2.0, GETDATE(), GETDATE()),
-    ('LCI Banco Inter', 'LCI', 'MEDIO', 1.2, GETDATE(), GETDATE());
+    ('CDB Banco Caixa', 'CDB', 'BAIXO', 0.010000, SYSDATETIMEOFFSET(), SYSDATETIMEOFFSET()),
+    ('LCI Banco Bradesco', 'LCI', 'BAIXO', 0.009000, SYSDATETIMEOFFSET(), SYSDATETIMEOFFSET()),
+    ('LCA Banco Santander', 'LCA', 'BAIXO', 0.008500, SYSDATETIMEOFFSET(), SYSDATETIMEOFFSET()),
+    ('Tesouro Direto Selic', 'TESOURO_DIRETO_SELIC', 'BAIXISSIMO', 0.010000, SYSDATETIMEOFFSET(), SYSDATETIMEOFFSET()),
+    ('FIA Fundo de Ações Suno Master', 'FIA', 'ALTO', 0.015000, SYSDATETIMEOFFSET(), SYSDATETIMEOFFSET()),
+    ('FII Fundo Imobiliário Kinea', 'FII', 'MEDIO', 0.012000, SYSDATETIMEOFFSET(), SYSDATETIMEOFFSET()),
+    ('CRI CRI XP', 'CRI', 'ALTO', 0.013000, SYSDATETIMEOFFSET(), SYSDATETIMEOFFSET()),
+    ('CRA CRA Itaú', 'CRA', 'ALTO', 0.014000, SYSDATETIMEOFFSET(), SYSDATETIMEOFFSET()),
+    ('CDB Banco Master', 'CDB', 'ALTISSIMO', 0.020000, SYSDATETIMEOFFSET(), SYSDATETIMEOFFSET()),
+    ('LCI Banco Inter', 'LCI', 'MEDIO', 0.012000, SYSDATETIMEOFFSET(), SYSDATETIMEOFFSET());
 
 
 

@@ -7,9 +7,11 @@ import jakarta.ws.rs.QueryParam;
 import lombok.Getter;
 import lombok.Setter;
 import master.gard.model.enums.ProdutoRisco;
-import master.gard.model.enums.sort.ProdutoSortBy;
 import master.gard.model.enums.SortDirection;
 import master.gard.model.enums.TipoProduto;
+import master.gard.model.enums.sort.ProdutoSortBy;
+
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -25,10 +27,10 @@ public class ProdutoFiltroRequest {
     private ProdutoRisco produtoRisco;
 
     @QueryParam("rentabilidade-min")
-    private Double rentabilidadeMin;
+    private BigDecimal rentabilidadeMin;
 
     @QueryParam("rentabilidade-max")
-    private Double rentabilidadeMax;
+    private BigDecimal rentabilidadeMax;
 
     @Min(1)
     @DefaultValue("1")

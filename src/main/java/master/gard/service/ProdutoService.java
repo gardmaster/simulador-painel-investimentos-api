@@ -19,6 +19,7 @@ import master.gard.model.Produto;
 import master.gard.repository.ProdutoRepository;
 import org.jboss.logging.Logger;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @ApplicationScoped
@@ -112,9 +113,9 @@ public class ProdutoService implements PanacheRepository<Produto> {
         }
     }
 
-    private void validarRentabilidadeFiltrada(Double rentabilidadeMin, Double rentabilidadeMax) {
+    private void validarRentabilidadeFiltrada(BigDecimal rentabilidadeMin, BigDecimal rentabilidadeMax) {
         LOG.infof("Validando rentabilidade filtrada: min=%s, max=%s", rentabilidadeMin, rentabilidadeMax);
-        if (rentabilidadeMin != null && rentabilidadeMax != null && rentabilidadeMin > rentabilidadeMax) {
+        if (rentabilidadeMin != null && rentabilidadeMax != null && rentabilidadeMin.compareTo(rentabilidadeMax) > 0) {
             throw new RentabilidadeProdutoInvertidaException(rentabilidadeMin, rentabilidadeMax);
         }
     }

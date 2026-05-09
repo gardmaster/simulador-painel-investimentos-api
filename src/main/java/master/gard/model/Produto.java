@@ -1,13 +1,16 @@
 package master.gard.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import master.gard.model.enums.ProdutoRisco;
 import master.gard.model.enums.TipoProduto;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.time.Instant;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "produtos")
 public class Produto {
@@ -28,23 +31,23 @@ public class Produto {
     private ProdutoRisco produtoRisco;
 
     @Column(name = "rentabilidade_mensal", nullable = false)
-    private Double rentabilidadeMensal;
+    private BigDecimal rentabilidadeMensal;
 
     @Column(name = "data_criacao", nullable = false)
-    private LocalDateTime dataCriacao;
+    private Instant dataCriacao;
 
     @Column(name = "data_atualizacao", nullable = false)
-    private LocalDateTime dataAtualizacao;
+    private Instant dataAtualizacao;
 
     @PrePersist
     public void prePersist() {
-        this.dataCriacao = LocalDateTime.now();
-        this.dataAtualizacao = LocalDateTime.now();
+        this.dataCriacao = Instant.now();
+        this.dataAtualizacao = Instant.now();
     }
 
     @PreUpdate
     public void preUpdate() {
-        this.dataAtualizacao = LocalDateTime.now();
+        this.dataAtualizacao = Instant.now();
     }
 
 }
