@@ -1,12 +1,14 @@
 package master.gard.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "investimentos")
 public class Investimento {
@@ -27,6 +29,6 @@ public class Investimento {
     private BigDecimal valor;
 
     @Column(name = "data_investimento", nullable = false)
-    private LocalDateTime dataInvestimento;
+    private Instant dataInvestimento;
 
 }

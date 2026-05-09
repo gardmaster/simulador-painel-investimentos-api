@@ -1,12 +1,11 @@
 package master.gard.dto.request;
 
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.*;
 import master.gard.model.enums.ProdutoRisco;
 import master.gard.model.enums.TipoProduto;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
+import java.math.BigDecimal;
 
 @Schema(
         description = "Dados para cadastro ou atualização de um produto financeiro",
@@ -25,7 +24,10 @@ public record ProdutoRequest(
                 enumeration = {"BAIXISSIMO", "BAIXO", "MEDIO", "ALTO", "ALTISSIMO"})
         @NotNull ProdutoRisco produtoRisco,
 
-        @Schema(description = "Rentabilidade mensal do produto financeiro", examples = "0.5")
-        @NotNull @Positive @Digits(integer = 3, fraction = 2, message = "{validation.produto.rentabilidade.invalida}") Double rentabilidadeMensal
+        @Schema(description = "Rentabilidade mensal do produto financeiro. Ex.: 0.01 = 1%, 0.015 = 1.5%, 0.005 = 0.5%", examples = "0.005")
+        @NotNull @Digits(integer = 1, fraction = 6, message = "{validation.produto.rentabilidade.invalida}")
+        @DecimalMin(value = "0.000001") @DecimalMax(value = "1.000000")
+        BigDecimal rentabilidadeMensal
+
 ) {
 }
