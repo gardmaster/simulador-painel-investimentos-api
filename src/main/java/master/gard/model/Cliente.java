@@ -1,12 +1,14 @@
 package master.gard.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import master.gard.model.enums.PerfilRisco;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "clientes")
 public class Cliente {
