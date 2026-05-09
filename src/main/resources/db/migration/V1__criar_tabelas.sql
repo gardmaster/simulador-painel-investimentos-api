@@ -5,8 +5,8 @@ CREATE TABLE clientes (
     documento NVARCHAR(255) NOT NULL,
     email NVARCHAR(255) NOT NULL,
     perfil_risco NVARCHAR(30) NOT NULL,
-    data_criacao DATETIME2(6) NOT NULL,
-    data_atualizacao DATETIME2(6) NOT NULL,
+    data_criacao DATETIMEOFFSET(6) NOT NULL,
+    data_atualizacao DATETIMEOFFSET(6) NOT NULL,
 
     CONSTRAINT pk_clientes PRIMARY KEY (id),
     CONSTRAINT uk_clientes_auth_user_id UNIQUE (auth_user_id),
@@ -23,8 +23,8 @@ CREATE TABLE produtos (
     tipo_produto NVARCHAR(50) NOT NULL,
     produto_risco NVARCHAR(30) NOT NULL,
     rentabilidade_mensal FLOAT NOT NULL,
-    data_criacao DATETIME2(6) NOT NULL,
-    data_atualizacao DATETIME2(6) NOT NULL,
+    data_criacao DATETIMEOFFSET(6) NOT NULL,
+    data_atualizacao DATETIMEOFFSET(6) NOT NULL,
 
     CONSTRAINT pk_produtos PRIMARY KEY (id),
     CONSTRAINT uk_produtos_nome UNIQUE (nome),
@@ -41,7 +41,7 @@ CREATE TABLE investimentos (
     produto_id BIGINT NOT NULL,
     cliente_id BIGINT NOT NULL,
     valor DECIMAL(19,2) NOT NULL,
-    data_investimento DATETIME2(6) NOT NULL,
+    data_investimento DATETIMEOFFSET(6) NOT NULL,
 
     CONSTRAINT pk_investimentos PRIMARY KEY (id),
     CONSTRAINT fk_investimentos_produto FOREIGN KEY (produto_id) REFERENCES produtos (id),
@@ -55,7 +55,7 @@ CREATE TABLE simulacoes (
     valor_investido DECIMAL(19,2) NOT NULL,
     valor_final DECIMAL(19,2) NOT NULL,
     prazo_meses INT NOT NULL,
-    data_simulacao DATETIME2(6) NOT NULL,
+    data_simulacao DATETIMEOFFSET(6) NOT NULL,
 
     CONSTRAINT pk_simulacoes PRIMARY KEY (id),
     CONSTRAINT fk_simulacoes_produto FOREIGN KEY (produto_id) REFERENCES produtos (id),

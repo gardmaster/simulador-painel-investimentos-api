@@ -1,12 +1,11 @@
 package master.gard.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -36,6 +35,6 @@ public class Simulacao {
     private Integer prazoMeses;
 
     @Column(name = "data_simulacao", nullable = false)
-    private LocalDateTime dataSimulacao;
+    private Instant dataSimulacao;
 
 }
