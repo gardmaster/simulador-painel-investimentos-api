@@ -1,7 +1,7 @@
 package master.gard.mapper.produto;
 
-import master.gard.dto.request.ProdutoRequest;
-import master.gard.dto.response.ProdutoResponse;
+import master.gard.dto.request.produto.ProdutoRequest;
+import master.gard.dto.response.produto.ProdutoResponse;
 import master.gard.mapper.MapStructConfig;
 import master.gard.model.Produto;
 import org.mapstruct.*;

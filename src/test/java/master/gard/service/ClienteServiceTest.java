@@ -1,10 +1,10 @@
 package master.gard.service;
 
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
-import master.gard.dto.request.ClienteFiltroRequest;
-import master.gard.dto.request.ClienteRequest;
-import master.gard.dto.response.ClientePageResponse;
-import master.gard.dto.response.ClienteResponse;
+import master.gard.dto.request.cliente.ClienteFiltroRequest;
+import master.gard.dto.request.cliente.ClienteRequest;
+import master.gard.dto.response.cliente.ClientePageResponse;
+import master.gard.dto.response.cliente.ClienteResponse;
 import master.gard.exception.*;
 import master.gard.model.Cliente;
 import master.gard.model.enums.PerfilRisco;

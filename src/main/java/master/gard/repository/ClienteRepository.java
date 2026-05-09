@@ -3,7 +3,7 @@ package master.gard.repository;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
-import master.gard.dto.request.ClienteFiltroRequest;
+import master.gard.dto.request.cliente.ClienteFiltroRequest;
 import master.gard.model.Cliente;
 import master.gard.model.enums.SortDirection;
 import master.gard.model.enums.sort.ClienteSortBy;

@@ -2,8 +2,8 @@ package master.gard.resource.cliente;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
-import master.gard.dto.request.ClienteFiltroRequest;
-import master.gard.dto.request.ClienteRequest;
+import master.gard.dto.request.cliente.ClienteFiltroRequest;
+import master.gard.dto.request.cliente.ClienteRequest;
 import master.gard.service.ClienteService;
 
 public class ClienteResource implements ClienteResourceI {

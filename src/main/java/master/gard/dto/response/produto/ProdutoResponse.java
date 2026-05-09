@@ -1,4 +1,4 @@
-package master.gard.dto.response;
+package master.gard.dto.response.produto;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 

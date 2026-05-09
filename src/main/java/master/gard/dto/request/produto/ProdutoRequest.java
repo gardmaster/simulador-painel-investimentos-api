@@ -1,4 +1,4 @@
-package master.gard.dto.request;
+package master.gard.dto.request.produto;
 
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
