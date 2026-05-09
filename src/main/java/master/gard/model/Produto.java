@@ -6,6 +6,7 @@ import lombok.Setter;
 import master.gard.model.enums.ProdutoRisco;
 import master.gard.model.enums.TipoProduto;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 @Getter
@@ -30,7 +31,7 @@ public class Produto {
     private ProdutoRisco produtoRisco;
 
     @Column(name = "rentabilidade_mensal", nullable = false)
-    private Double rentabilidadeMensal;
+    private BigDecimal rentabilidadeMensal;
 
     @Column(name = "data_criacao", nullable = false)
     private Instant dataCriacao;
