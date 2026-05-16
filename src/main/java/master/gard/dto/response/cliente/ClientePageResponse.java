@@ -1,5 +1,6 @@
-package master.gard.dto.response;
+package master.gard.dto.response.cliente;
 
+import master.gard.dto.response.PageInfoResponse;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import java.util.List;

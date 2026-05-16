@@ -1,7 +1,7 @@
 package master.gard.mapper.cliente;
 
-import master.gard.dto.request.ClienteRequest;
-import master.gard.dto.response.ClienteResponse;
+import master.gard.dto.request.cliente.ClienteRequest;
+import master.gard.dto.response.cliente.ClienteResponse;
 import master.gard.mapper.MapStructConfig;
 import master.gard.model.Cliente;
 import master.gard.util.DocumentoUtil;

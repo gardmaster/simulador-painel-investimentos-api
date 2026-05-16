@@ -1,4 +1,4 @@
-package master.gard.dto.request;
+package master.gard.dto.request.cliente;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
