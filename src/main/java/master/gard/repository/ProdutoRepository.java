@@ -5,10 +5,13 @@ import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import master.gard.dto.request.produto.ProdutoFiltroRequest;
 import master.gard.model.Produto;
-import master.gard.model.enums.sort.ProdutoSortBy;
 import master.gard.model.enums.SortDirection;
+import master.gard.model.enums.TipoProduto;
+import master.gard.model.enums.sort.ProdutoSortBy;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @ApplicationScoped
@@ -66,6 +69,56 @@ public class ProdutoRepository implements PanacheRepository<Produto> {
             case DATA_CRIACAO -> "dataCriacao";
         };
     }
+
+    public List<Produto> buscarPorTipo(TipoProduto tipoProduto) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("tipoProduto", tipoProduto);
+        return find("tipoProduto = :tipoProduto", params).list();
+    }
+
+    public List<Produto> buscarPorTipoEEntrePontuacao(TipoProduto tipoProduto, BigDecimal pontuacaoMin, BigDecimal pontuacaoMax) {
+        String jpql = """
+            tipoProduto = :tipoProduto
+            and (
+                case produtoRisco
+                    when master.gard.model.enums.ProdutoRisco.BAIXISSIMO then 10
+                    when master.gard.model.enums.ProdutoRisco.BAIXO then 25
+                    when master.gard.model.enums.ProdutoRisco.MEDIO then 50
+                    when master.gard.model.enums.ProdutoRisco.ALTO then 76
+                    else 100
+                end
+            ) between :pontuacaoMin and :pontuacaoMax
+            """;
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("tipoProduto", tipoProduto);
+        params.put("pontuacaoMin", pontuacaoMin);
+        params.put("pontuacaoMax", pontuacaoMax);
+
+        return find(jpql, params).list();
+    }
+
+    public List<Produto> buscarPorTipoEAtePontuacaoMax(TipoProduto tipoProduto, BigDecimal pontuacaoMax) {
+        String jpql = """
+                tipoProduto = :tipoProduto
+                and (
+                    case produtoRisco
+                        when master.gard.model.enums.ProdutoRisco.BAIXISSIMO then 10
+                        when master.gard.model.enums.ProdutoRisco.BAIXO then 25
+                        when master.gard.model.enums.ProdutoRisco.MEDIO then 50
+                        when master.gard.model.enums.ProdutoRisco.ALTO then 76
+                        else 100
+                    end
+                ) <= :pontuacaoMax
+                """;
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("tipoProduto", tipoProduto);
+        params.put("pontuacaoMax", pontuacaoMax);
+
+        return find(jpql, params).list();
+    }
+
 
     private String resolverDirecao(SortDirection sortDirection) {
         if (sortDirection == null) {

@@ -28,7 +28,7 @@ public class ClienteResource implements ClienteResourceI {
 
     @Override
     public Response cadastrarCliente(ClienteRequest request) {
-        return Response.ok(Response.Status.CREATED).entity(service.cadastrarCliente(request)).build();
+        return Response.status(Response.Status.CREATED).entity(service.cadastrarCliente(request)).build();
     }
 
     @Override

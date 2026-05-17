@@ -31,6 +31,9 @@ public class Simulacao {
     @Column(name = "valor_final", nullable = false)
     private BigDecimal valorFinal;
 
+    @Column(name = "rentabilidade_efetiva", nullable = false)
+    private BigDecimal rentabilidadeEfetiva;
+
     @Column(name = "prazo_meses", nullable = false)
     private Integer prazoMeses;
 

@@ -2,6 +2,8 @@ package master.gard.dto.response.cliente;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
+import java.math.BigDecimal;
+
 
 @Schema(description = "Dados retornados de um cliente")
 public record ClienteResponse(
@@ -18,8 +20,12 @@ public record ClienteResponse(
         String documento,
 
         @Schema(description = "Perfil de risco do investidor", examples = "CONSERVADOR",
-                enumeration = {"CONSERVADOR", "MODERADO", "ARROJADO", "AGRESSIVO", "NAO_CLASSIFICADO"})
-        String perfilRisco
+                enumeration = {"CONSERVADOR", "MODERADO", "AGRESSIVO"})
+        String perfilRisco,
+
+        @Schema(description = "Pontuação do cliente para perfil de risco, " +
+                "calculada com base nas respostas do questionário de perfil de risco", examples = "12.50")
+        BigDecimal pontuacaoRisco
 ) {
 
 }

@@ -42,4 +42,7 @@ public final class MessageKeys {
 
     public static final String ERRO_INTERNO_TITLE = "error.interno.title";
     public static final String ERRO_INTERNO_DETAIL = "error.interno.detail";
+
+    public static final String ERRO_PRODUTO_NAO_VALIDADO_SIMULACAO_TITLE = "error.produto-nao-validado-para-simulacao.title";
+    public static final String ERRO_PRODUTO_NAO_VALIDADO_SIMULACAO_DETAIL = "error.produto-nao-validado-para-simulacao.detail";
 }

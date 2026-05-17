@@ -6,10 +6,17 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
 import master.gard.dto.request.simulacao.SimulacaoFiltroRequest;
+import master.gard.dto.request.simulacao.SimulacaoRequest;
 import master.gard.dto.response.PageInfoResponse;
 import master.gard.dto.response.simulacao.SimulacaoPageResponse;
 import master.gard.dto.response.simulacao.SimulacaoResponse;
+import master.gard.dto.response.simulacao.SimulacaoSolicitadaResponse;
+import master.gard.exception.NenhumProdutoValidadoParaSimulacaoException;
 import master.gard.mapper.simulacao.SimulacaoMapper;
+import master.gard.mapper.simulacao.SimulacaoSolicitadaMapper;
+import master.gard.model.Cliente;
+import master.gard.model.Investimento;
+import master.gard.model.Produto;
 import master.gard.model.Simulacao;
 import master.gard.repository.SimulacaoRepository;
 import org.jboss.logging.Logger;
@@ -19,6 +26,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
@@ -29,11 +37,25 @@ public class SimulacaoService {
     private static final ZoneId ZONE = ZoneId.of("America/Sao_Paulo"); // escolha oficial do negócio
 
     private final SimulacaoRepository simulacaoRepository;
+    private final SimulacaoCalculoService simulacaoCalculoService;
     private final SimulacaoMapper simulacaoMapper;
+    private final ClienteAuthService clienteAuthService;
+    private final ProdutoRecomendacaoService produtoRecomendacaoService;
+    private final SimulacaoSolicitadaMapper simulacaoSolicitadaMapper;
+    private final PerfilRiscoRecalculoService perfilRiscoRecalculoService;
 
-    public SimulacaoService(SimulacaoRepository simulacaoRepository, SimulacaoMapper simulacaoMapper) {
+    public SimulacaoService(SimulacaoRepository simulacaoRepository, SimulacaoCalculoService simulacaoCalculoService,
+                            SimulacaoMapper simulacaoMapper, ClienteAuthService clienteAuthService,
+                            ProdutoRecomendacaoService produtoRecomendacaoService, SimulacaoSolicitadaMapper simulacaoSolicitadaMapper,
+                            PerfilRiscoRecalculoService perfilRiscoRecalculoService) {
+
         this.simulacaoRepository = simulacaoRepository;
+        this.simulacaoCalculoService = simulacaoCalculoService;
         this.simulacaoMapper = simulacaoMapper;
+        this.clienteAuthService = clienteAuthService;
+        this.produtoRecomendacaoService = produtoRecomendacaoService;
+        this.simulacaoSolicitadaMapper = simulacaoSolicitadaMapper;
+        this.perfilRiscoRecalculoService = perfilRiscoRecalculoService;
     }
 
     @Transactional
@@ -69,6 +91,50 @@ public class SimulacaoService {
         );
     }
 
+    @Transactional
+    public SimulacaoSolicitadaResponse simularInvestimento(SimulacaoRequest request) {
+
+        LOG.infof("Simulando investimento com parâmetros: valor=%f, prazo=%d meses e tipoProduto=%s",
+                request.valor(), request.prazoMeses(), request.tipoProduto());
+
+        Cliente cliente = clienteAuthService.getClienteAutenticado();
+        LOG.infof("Cliente autenticado encontrado: ID %d, Nome: %s", cliente.getId(), cliente.getNome());
+
+        Produto produto = produtoRecomendacaoService.recomendarProduto(cliente, request.tipoProduto());
+        if (produto == null) {
+            throw new NenhumProdutoValidadoParaSimulacaoException(cliente.getPerfilRisco(), cliente.getPontuacaoRisco(), request.tipoProduto());
+        }
+
+        Simulacao simulacao = simulacaoCalculoService.calcularSimulacao(cliente, produto, request.valor(), request.prazoMeses());
+        simulacaoRepository.persist(simulacao);
+        LOG.infof("Simulação persistida com ID: %d", simulacao.getId());
+
+        List<Simulacao> simulacoesCliente = simulacaoRepository.list("cliente.id", cliente.getId());
+        //TODO: AJUSTAR ESTE TRECHO QUANDO CRIAR FLUXO DE INVESTIMENTOS
+        //List<Investimento> investimentosCliente = investimentoRepository.list("cliente.id", cliente.getId());
+
+        LOG.infof("Perfil de risco antes do recalculo do cliente ID %d -> perfil=%s, pontuacao=%s",
+                cliente.getId(),
+                cliente.getPerfilRisco(),
+                cliente.getPontuacaoRisco()
+        );
+
+        PerfilRiscoRecalculoService.ResultadoRecalculoPerfil resultadoPerfil =
+                perfilRiscoRecalculoService.recalcularPerfil(cliente, simulacoesCliente, new ArrayList<>());
+
+        cliente.setPontuacaoRisco(resultadoPerfil.novaPontuacaoRisco());
+        cliente.setPerfilRisco(resultadoPerfil.novoPerfilRisco());
+
+        LOG.infof(
+                "Perfil recalculado do cliente ID %d -> perfil=%s, pontuacao=%s",
+                cliente.getId(),
+                cliente.getPerfilRisco(),
+                cliente.getPontuacaoRisco()
+        );
+
+        return simulacaoSolicitadaMapper.toResponse(produto, simulacao);
+    }
+
 
     private LocalDate parseDataSimulacao(String dataStr) {
         LOG.infof("Parseando data de simulação: %s", dataStr);
@@ -93,11 +159,4 @@ public class SimulacaoService {
         }
     }
 
-    private Instant startOfDay(LocalDate d) {
-        return d.atStartOfDay(ZONE).toInstant();
-    }
-
-    private Instant nextDayStart(LocalDate d) {
-        return d.plusDays(1).atStartOfDay(ZONE).toInstant();
-    }
 }

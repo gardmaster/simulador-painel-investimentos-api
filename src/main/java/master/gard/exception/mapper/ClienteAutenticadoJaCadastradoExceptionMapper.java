@@ -19,7 +19,7 @@ public class ClienteAutenticadoJaCadastradoExceptionMapper extends BaseException
     public Response toResponse(ClienteAutenticadoJaCadastradoException exception) {
 
         log.warnf("""
-                Cliente já cadastrado para AuthUserId recuperado do JWT.
+                Cliente autenticado recuperado do JWT.
                 Preferred Username: %s
                 AuthUserId: %s
                 Nome: %s

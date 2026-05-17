@@ -7,14 +7,16 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import master.gard.dto.request.cliente.ClienteFiltroRequest;
 import master.gard.dto.request.cliente.ClienteRequest;
+import master.gard.dto.response.PageInfoResponse;
 import master.gard.dto.response.cliente.ClientePageResponse;
 import master.gard.dto.response.cliente.ClienteResponse;
-import master.gard.dto.response.PageInfoResponse;
-import master.gard.exception.*;
+import master.gard.exception.ClienteAutenticadoJaCadastradoException;
+import master.gard.exception.ClienteNaoEncontradoException;
+import master.gard.exception.DocumentoExistenteException;
+import master.gard.exception.EmailExistenteException;
 import master.gard.mapper.cliente.ClienteMapper;
 import master.gard.model.Cliente;
 import master.gard.repository.ClienteRepository;
-import master.gard.util.JwtUtil;
 import org.jboss.logging.Logger;
 
 import java.util.List;
@@ -26,14 +28,14 @@ public class ClienteService {
     private static final Logger LOG = Logger.getLogger(ClienteService.class);
 
     private final ClienteRepository clienteRepository;
-    private final JwtUtil jwtUtil;
     private final ClienteMapper clienteMapper;
+    private final ClienteAuthService clienteAuthService;
 
     @Inject
-    public ClienteService(ClienteRepository clienteRepository, JwtUtil jwtUtil, ClienteMapper clienteMapper) {
+    public ClienteService(ClienteRepository clienteRepository, ClienteMapper clienteMapper, ClienteAuthService clienteAuthService) {
         this.clienteRepository = clienteRepository;
-        this.jwtUtil = jwtUtil;
         this.clienteMapper = clienteMapper;
+        this.clienteAuthService = clienteAuthService;
     }
 
     @Transactional
@@ -65,7 +67,7 @@ public class ClienteService {
         LOG.infof("Cadastrando novo cliente: %s", request.nome());
 
         LOG.info("Recuperando claim 'sub' do token JWT para associar ao cliente");
-        String authUserId = jwtUtil.getSubject();
+        String authUserId = clienteAuthService.getAuthUserId();
         validarClienteAutenticadoJaCadastrado(authUserId);
 
         validarDocumentoCadastrado(request.documento());
@@ -74,6 +76,8 @@ public class ClienteService {
 
         Cliente cliente = clienteMapper.toEntity(request);
         cliente.setAuthUserId(authUserId);
+
+        aplicarPontuacaoPadraoPorPerfil(cliente);
 
         clienteRepository.persist(cliente);
         LOG.infof("Cliente persistido com ID: %d", cliente.getId());
@@ -91,6 +95,9 @@ public class ClienteService {
         LOG.infof("Documento e email validados para atualização do cliente ID: %d", id);
 
         clienteMapper.updateEntityFromRequest(request, clienteExistente);
+
+        aplicarPontuacaoPadraoPorPerfil(clienteExistente);
+
         clienteRepository.persist(clienteExistente);
         LOG.infof("Cliente atualizado com ID: %d", id);
 
@@ -101,10 +108,7 @@ public class ClienteService {
     public ClienteResponse obterClienteAutenticado() {
         LOG.info("Chamando ClienteService para buscar cliente autenticado");
 
-        String authUserId = jwtUtil.getSubject();
-        LOG.infof("AuthUserId extraído do token: %s", authUserId);
-
-        Cliente cliente = getClienteExistentePorUserAuthId(authUserId);
+        Cliente cliente = clienteAuthService.getClienteAutenticado();
         LOG.infof("Cliente autenticado encontrado: ID %d, Nome: %s", cliente.getId(), cliente.getNome());
 
         return clienteMapper.toResponse(cliente);
@@ -114,16 +118,17 @@ public class ClienteService {
     public ClienteResponse atualizarCadastroClienteAutenticado(ClienteRequest request) {
         LOG.infof("Atualizando cadastro do cliente autenticado: %s", request.nome());
 
-        String authUserId = jwtUtil.getSubject();
-        LOG.infof("AuthUserId extraído do token: %s", authUserId);
-
-        Cliente clienteExistente = getClienteExistentePorUserAuthId(authUserId);
+        Cliente clienteExistente = clienteAuthService.getClienteAutenticado();
+        LOG.infof("Cliente autenticado encontrado para atualização: ID %d, Nome: %s", clienteExistente.getId(), clienteExistente.getNome());
 
         validarDocumentoCadastradoParaOutroCliente(request.documento(), clienteExistente.getId());
         validarEmailCadastradoParaOutroCliente(request.email(), clienteExistente.getId());
         LOG.infof("Documento e email validados para atualização do cliente autenticado ID: %d", clienteExistente.getId());
 
         clienteMapper.updateEntityFromRequest(request, clienteExistente);
+
+        aplicarPontuacaoPadraoPorPerfil(clienteExistente);
+
         clienteRepository.persist(clienteExistente);
         LOG.infof("Cadastro do cliente autenticado atualizado com ID: %d", clienteExistente.getId());
 
@@ -163,28 +168,24 @@ public class ClienteService {
                 .orElseThrow(() -> new ClienteNaoEncontradoException(id));
     }
 
-    private Cliente getClienteExistentePorUserAuthId(String authUserId) {
-        return clienteRepository.findByAuthUserIdOptional(authUserId)
-                .orElseThrow(() -> new ClienteAutenticadoSemCadastroException(
-                        jwtUtil.getPreferredUsername().orElse("N/A"),
-                        authUserId,
-                        jwtUtil.getName().orElse("N/A"),
-                        jwtUtil.getEmail().orElse("N/A")
-                ));
-    }
-
     private void validarClienteAutenticadoJaCadastrado(String authUserId) {
         LOG.infof("Verificando se já existe um cliente cadastrado para authUserId: %s", authUserId);
         Optional<Cliente> clienteOpt = clienteRepository.findByAuthUserIdOptional(authUserId);
 
         if (clienteOpt.isPresent()) {
-            Cliente cliente = clienteOpt.get();
             throw new ClienteAutenticadoJaCadastradoException(
-                    jwtUtil.getPreferredUsername().orElse("N/A"),
+                    clienteAuthService.getPreferredUsername(),
                     authUserId,
-                    cliente.getNome(),
-                    cliente.getEmail()
+                    clienteAuthService.getName(),
+                    clienteAuthService.getEmail()
             );
         }
+    }
+
+    private void aplicarPontuacaoPadraoPorPerfil(Cliente cliente) {
+        if (cliente.getPerfilRisco() == null) {
+            return;
+        }
+        cliente.setPontuacaoRisco(cliente.getPerfilRisco().getPontuacaoPadrao());
     }
 }

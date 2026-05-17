@@ -14,6 +14,7 @@ public interface ClienteMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "authUserId", ignore = true)
+    @Mapping(target = "pontuacaoRisco", ignore = true)
     @Mapping(target = "dataCriacao", ignore = true)
     @Mapping(target = "dataAtualizacao", ignore = true)
     Cliente toEntity(ClienteRequest request);
@@ -27,6 +28,7 @@ public interface ClienteMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "authUserId", ignore = true)
+    @Mapping(target = "pontuacaoRisco", ignore = true)
     @Mapping(target = "dataCriacao", ignore = true)
     @Mapping(target = "dataAtualizacao", ignore = true)
     void updateEntityFromRequest(ClienteRequest request, @MappingTarget Cliente cliente);
