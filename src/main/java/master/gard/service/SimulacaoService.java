@@ -5,6 +5,7 @@ import io.quarkus.panache.common.Page;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.ForbiddenException;
 import master.gard.dto.request.simulacao.SimulacaoFiltroRequest;
 import master.gard.dto.request.simulacao.SimulacaoRequest;
 import master.gard.dto.response.PageInfoResponse;
@@ -15,7 +16,6 @@ import master.gard.exception.NenhumProdutoValidadoParaSimulacaoException;
 import master.gard.mapper.simulacao.SimulacaoMapper;
 import master.gard.mapper.simulacao.SimulacaoSolicitadaMapper;
 import master.gard.model.Cliente;
-import master.gard.model.Investimento;
 import master.gard.model.Produto;
 import master.gard.model.Simulacao;
 import master.gard.repository.SimulacaoRepository;
@@ -60,10 +60,29 @@ public class SimulacaoService {
 
     @Transactional
     public SimulacaoPageResponse listarSimulacoes(SimulacaoFiltroRequest filtro) {
-        LOG.infof("Listando simulações com filtros: " +
+        LOG.infof("Listando simulações com filtros recebidos: " +
                         "clienteId=%d, nomeProduto=%s, fromDataSimulacao=%s, toDataSimulacao=%s, page=%d, pageSize=%d, sortBy=%s, sortDirection=%s",
                 filtro.getClienteId(), filtro.getNomeProduto(), filtro.getFromDataSimulacao(), filtro.getToDataSimulacao(),
                 filtro.getPage(), filtro.getPageSize(), filtro.getSortBy(), filtro.getSortDirection());
+
+        // Esta é a melhor maneira de fazer isso?!
+        // Perguntar a alguém com XP
+        boolean isAdmin = clienteAuthService.isAdmin();
+
+        if (!isAdmin) {
+            Cliente clienteAutenticado = clienteAuthService.getClienteAutenticado();
+            Long clienteIdAutenticado = clienteAutenticado.getId();
+
+            // Se usuário "comum" tentou passar clienteId diferente no filtro
+            if (filtro.getClienteId() != null && !filtro.getClienteId().equals(clienteIdAutenticado)) {
+                LOG.warnf("Usuário comum tentou consultar clienteId=%d. Forçando para clienteId autenticado=%d",
+                        filtro.getClienteId(), clienteIdAutenticado);
+
+                throw new ForbiddenException("Filtro 'cliente-id' não pode ser usado para consultar simulações de outros clientes. " +
+                        "Deixe-o em branco para filtrar suas próprias simulações.");
+            }
+
+        }
 
         LocalDate fromDataSimulacao = parseDataSimulacao(filtro.getFromDataSimulacao());
         LocalDate toDataSimulacao = parseDataSimulacao(filtro.getToDataSimulacao());
