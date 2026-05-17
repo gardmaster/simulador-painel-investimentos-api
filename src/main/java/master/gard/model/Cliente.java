@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import master.gard.model.enums.PerfilRisco;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 @Getter
@@ -32,6 +33,9 @@ public class Cliente {
     @Enumerated(EnumType.STRING)
     @Column(name = "perfil_risco", nullable = false)
     private PerfilRisco perfilRisco;
+
+    @Column(name = "pontuacao_risco", nullable = false, precision = 5, scale = 2)
+    private BigDecimal pontuacaoRisco;
 
     @Column(name = "data_criacao", nullable = false)
     private Instant dataCriacao;

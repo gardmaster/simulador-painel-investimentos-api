@@ -1,17 +1,37 @@
 package master.gard.model.enums;
 
+import lombok.Getter;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
+import java.math.BigDecimal;
+
+@Getter
 @Schema(description = "Perfil de risco do investidor")
 public enum PerfilRisco {
 
     @Schema(description = "Investidor conservador, com baixa tolerância a riscos e foco em segurança do capital")
-    CONSERVADOR,
+    CONSERVADOR(new BigDecimal("12.50"), new BigDecimal("1.00"), new BigDecimal("25.00")),
 
     @Schema(description = "Investidor moderado, com tolerância média a riscos e busca por equilíbrio entre segurança e retorno")
-    MODERADO,
+    MODERADO(new BigDecimal("50.00"), new BigDecimal("26.00"), new BigDecimal("75.00")),
 
     @Schema(description = "Investidor agressivo, com altíssima tolerância a riscos e busca por retornos máximos, mesmo que isso implique em grandes oscilações")
-    AGRESSIVO;
+    AGRESSIVO(new BigDecimal("87.50"), new BigDecimal("76.00"), new BigDecimal("100.00"));
+
+    private final BigDecimal pontuacaoPadrao;
+    private final BigDecimal faixaMin;
+    private final BigDecimal faixaMax;
+
+    PerfilRisco(BigDecimal pontuacaoPadrao, BigDecimal faixaMin, BigDecimal faixaMax) {
+        this.pontuacaoPadrao = pontuacaoPadrao;
+        this.faixaMin = faixaMin;
+        this.faixaMax = faixaMax;
+    }
+
+    public boolean aceita(BigDecimal pontuacao) {
+        return pontuacao != null
+                && pontuacao.compareTo(faixaMin) >= 0
+                && pontuacao.compareTo(faixaMax) <= 0;
+    }
 
 }

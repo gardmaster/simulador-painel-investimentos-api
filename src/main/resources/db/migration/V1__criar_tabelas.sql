@@ -1,11 +1,12 @@
 CREATE TABLE clientes (
-    id BIGINT IDENTITY(1,1) NOT NULL,
-    auth_user_id NVARCHAR(255) NOT NULL,
-    nome NVARCHAR(255) NOT NULL,
-    documento NVARCHAR(255) NOT NULL,
-    email NVARCHAR(255) NOT NULL,
-    perfil_risco NVARCHAR(30) NOT NULL,
-    data_criacao DATETIMEOFFSET(6) NOT NULL,
+    id               BIGINT IDENTITY(1,1) NOT NULL,
+    auth_user_id     NVARCHAR(255) NOT NULL,
+    nome             NVARCHAR(255) NOT NULL,
+    documento        NVARCHAR(255) NOT NULL,
+    email            NVARCHAR(255) NOT NULL,
+    perfil_risco     NVARCHAR(30) NOT NULL,
+    pontuacao_risco  DECIMAL(5,2) NOT NULL,
+    data_criacao     DATETIMEOFFSET(6) NOT NULL,
     data_atualizacao DATETIMEOFFSET(6) NOT NULL,
 
     CONSTRAINT pk_clientes PRIMARY KEY (id),
@@ -14,7 +15,14 @@ CREATE TABLE clientes (
     CONSTRAINT uk_clientes_email UNIQUE (email),
     CONSTRAINT ck_clientes_perfil_risco CHECK (
         perfil_risco IN ('CONSERVADOR', 'MODERADO', 'AGRESSIVO')
-    )
+        ),
+    CONSTRAINT ck_cliente_perfil_pontuacao
+        CHECK (
+                (perfil_risco = 'AGRESSIVO' AND pontuacao_risco BETWEEN 76.00 AND 100.00)
+                OR (perfil_risco = 'MODERADO' AND pontuacao_risco BETWEEN 26.00 AND 75.00)
+                OR (perfil_risco = 'CONSERVADOR' AND pontuacao_risco BETWEEN 1.00 AND 25.00)
+            )
+
 );
 
 CREATE TABLE produtos (

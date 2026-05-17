@@ -6,10 +6,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
 import master.gard.dto.request.simulacao.SimulacaoFiltroRequest;
+import master.gard.dto.request.simulacao.SimulacaoRequest;
 import master.gard.dto.response.PageInfoResponse;
 import master.gard.dto.response.simulacao.SimulacaoPageResponse;
 import master.gard.dto.response.simulacao.SimulacaoResponse;
 import master.gard.mapper.simulacao.SimulacaoMapper;
+import master.gard.model.Cliente;
+import master.gard.model.Produto;
 import master.gard.model.Simulacao;
 import master.gard.repository.SimulacaoRepository;
 import org.jboss.logging.Logger;
@@ -30,10 +33,15 @@ public class SimulacaoService {
 
     private final SimulacaoRepository simulacaoRepository;
     private final SimulacaoMapper simulacaoMapper;
+    private final ClienteAuthService clienteAuthService;
+    private final ProdutoRecomendacaoService produtoRecomendacaoService;
 
-    public SimulacaoService(SimulacaoRepository simulacaoRepository, SimulacaoMapper simulacaoMapper) {
+    public SimulacaoService(SimulacaoRepository simulacaoRepository, SimulacaoMapper simulacaoMapper,
+                            ClienteAuthService clienteAuthService, ProdutoRecomendacaoService produtoRecomendacaoService) {
         this.simulacaoRepository = simulacaoRepository;
         this.simulacaoMapper = simulacaoMapper;
+        this.clienteAuthService = clienteAuthService;
+        this.produtoRecomendacaoService = produtoRecomendacaoService;
     }
 
     @Transactional
@@ -69,6 +77,24 @@ public class SimulacaoService {
         );
     }
 
+    @Transactional
+    public SimulacaoResponse simularInvestimento(SimulacaoRequest request) {
+
+        LOG.infof("Simulando investimento com parâmetros: valor=%f, prazo=%d meses e tipoProduto=%s",
+                request.valor(), request.prazoMeses(), request.tipoProduto());
+
+        Cliente cliente = clienteAuthService.getClienteAutenticado();
+        LOG.infof("Cliente autenticado encontrado: ID %d, Nome: %s", cliente.getId(), cliente.getNome());
+
+        Produto produto = produtoRecomendacaoService.recomendarProduto(cliente, request.tipoProduto());
+        if (produto == null) {
+            //TODO: Criar Exception personalizada
+            throw new BadRequestException("Nenhum produto encontrado para o tipo informado.");
+        }
+
+        return null;
+    }
+
 
     private LocalDate parseDataSimulacao(String dataStr) {
         LOG.infof("Parseando data de simulação: %s", dataStr);
@@ -93,11 +119,4 @@ public class SimulacaoService {
         }
     }
 
-    private Instant startOfDay(LocalDate d) {
-        return d.atStartOfDay(ZONE).toInstant();
-    }
-
-    private Instant nextDayStart(LocalDate d) {
-        return d.plusDays(1).atStartOfDay(ZONE).toInstant();
-    }
 }

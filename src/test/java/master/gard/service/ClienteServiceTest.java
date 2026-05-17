@@ -21,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +36,6 @@ class ClienteServiceTest {
     private static final Long ID_CLIENTE_INEXISTENTE = 999L;
 
     private static final String AUTH_USER_ID_VALIDO = "auth-123";
-    private static final String AUTH_USER_ID_VALIDO_SEM_CADASTRO = "auth-999";
     private static final String NOME_CLIENTE_1 = "Cliente 1";
     private static final String NOME_CLIENTE_2 = "Cliente 2";
     private static final String NOME_CLIENTE_NOVO = "Cliente Novo";
@@ -49,6 +49,9 @@ class ClienteServiceTest {
     private static final PerfilRisco PERFIL_CLIENTE_1 = PerfilRisco.CONSERVADOR;
     private static final PerfilRisco PERFIL_CLIENTE_2 = PerfilRisco.MODERADO;
     private static final PerfilRisco PERFIL_CLIENTE_NOVO = PerfilRisco.MODERADO;
+
+    private static final BigDecimal PONTUACAO_CONSERVADOR = new BigDecimal("12.5");
+    private static final BigDecimal PONTUACAO_MODERADO = new BigDecimal("50.0");
 
     @Mock
     private ClienteRepository clienteRepositoryMock;
@@ -65,6 +68,9 @@ class ClienteServiceTest {
     @Mock
     private ClienteMapper clienteMapperMock;
 
+    @Mock
+    private ClienteAuthService clienteAuthServiceMock;
+
     @InjectMocks
     private ClienteService clienteServiceInjectedMock;
 
@@ -80,8 +86,8 @@ class ClienteServiceTest {
     void deveRetornarListaClientes_quandoExistiremClientesCadastrados() {
         Cliente cliente1 = montarCliente(ID_CLIENTE_1, NOME_CLIENTE_1, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_1, PERFIL_CLIENTE_1);
         Cliente cliente2 = montarCliente(ID_CLIENTE_2, NOME_CLIENTE_2, DOCUMENTO_CLIENTE_2, EMAIL_CLIENTE_2, PERFIL_CLIENTE_2);
-        ClienteResponse clienteResponse1 = montarClienteResponse(ID_CLIENTE_1, NOME_CLIENTE_1, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_1, PERFIL_CLIENTE_1);
-        ClienteResponse clienteResponse2 = montarClienteResponse(ID_CLIENTE_2, NOME_CLIENTE_2, DOCUMENTO_CLIENTE_2, EMAIL_CLIENTE_2, PERFIL_CLIENTE_2);
+        ClienteResponse clienteResponse1 = montarClienteResponse(ID_CLIENTE_1, NOME_CLIENTE_1, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_1, PERFIL_CLIENTE_1, PONTUACAO_CONSERVADOR);
+        ClienteResponse clienteResponse2 = montarClienteResponse(ID_CLIENTE_2, NOME_CLIENTE_2, DOCUMENTO_CLIENTE_2, EMAIL_CLIENTE_2, PERFIL_CLIENTE_2, PONTUACAO_MODERADO);
 
         when(clienteRepositoryMock.buscarFiltrado(clienteFiltroRequestMock)).thenReturn(panacheQueryMock);
         when(panacheQueryMock.list()).thenReturn(List.of(cliente1, cliente2));
@@ -117,7 +123,7 @@ class ClienteServiceTest {
     @DisplayName("Deve retornar cliente response quando cliente for encontrado por ID")
     void deveRetornarClienteResponse_quandoClienteForEncontradoPorId() {
         Cliente cliente = montarCliente(ID_CLIENTE_1, NOME_CLIENTE_1, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_1, PERFIL_CLIENTE_1);
-        ClienteResponse clienteResponse = montarClienteResponse(ID_CLIENTE_1, NOME_CLIENTE_1, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_1, PERFIL_CLIENTE_1);
+        ClienteResponse clienteResponse = montarClienteResponse(ID_CLIENTE_1, NOME_CLIENTE_1, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_1, PERFIL_CLIENTE_1, PONTUACAO_CONSERVADOR);
         when(clienteRepositoryMock.findByIdOptional(ID_CLIENTE_1)).thenReturn(Optional.of(cliente));
         when(clienteMapperMock.toResponse(cliente)).thenReturn(clienteResponse);
 
@@ -144,7 +150,7 @@ class ClienteServiceTest {
     void deveCadastrarCliente_quandoDadosForemValidos() {
         ClienteRequest request = montarRequestPadrao();
         Cliente clienteCadastrado = montarCliente(ID_CLIENTE_1, NOME_CLIENTE_NOVO, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_NOVO, PERFIL_CLIENTE_NOVO);
-        ClienteResponse clienteResponse = montarClienteResponse(ID_CLIENTE_1, NOME_CLIENTE_NOVO, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_NOVO, PERFIL_CLIENTE_NOVO);
+        ClienteResponse clienteResponse = montarClienteResponse(ID_CLIENTE_1, NOME_CLIENTE_NOVO, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_NOVO, PERFIL_CLIENTE_NOVO, PONTUACAO_MODERADO);
         mockarPreCondicoesCadastroValido(request, AUTH_USER_ID_VALIDO);
 
         when(clienteMapperMock.toEntity(request)).thenReturn(clienteCadastrado);
@@ -170,30 +176,11 @@ class ClienteServiceTest {
     }
 
     @Test
-    @DisplayName("Deve lancar ClienteAutenticadoJaCadastradoException quando authUserId ja possuir cadastro")
-    void deveLancarClienteAutenticadoJaCadastradoException_quandoAuthUserJaExistir() {
-        ClienteRequest request = montarRequestPadrao();
-        Cliente existente = new Cliente();
-        existente.setNome("Cliente Existente");
-        existente.setEmail("existente@test.com");
-
-        when(jwtUtilMock.getSubject()).thenReturn(AUTH_USER_ID_VALIDO);
-        when(clienteRepositoryMock.findByAuthUserIdOptional(AUTH_USER_ID_VALIDO)).thenReturn(Optional.of(existente));
-
-        assertThrows(ClienteAutenticadoJaCadastradoException.class,
-                () -> clienteServiceInjectedMock.cadastrarCliente(request));
-
-        verify(clienteRepositoryMock, never()).persist(any(Cliente.class));
-        verify(clienteRepositoryMock, never()).isDocumentoExistente(any());
-        verify(clienteRepositoryMock, never()).isEmailExistente(any());
-    }
-
-    @Test
     @DisplayName("Deve lancar DocumentoExistenteException quando documento ja estiver cadastrado")
     void deveLancarDocumentoExistenteException_quandoDocumentoJaExistir() {
         ClienteRequest request = montarRequestPadrao();
 
-        when(jwtUtilMock.getSubject()).thenReturn(AUTH_USER_ID_VALIDO);
+        when(clienteAuthServiceMock.getAuthUserId()).thenReturn(AUTH_USER_ID_VALIDO);
         when(clienteRepositoryMock.findByAuthUserIdOptional(AUTH_USER_ID_VALIDO)).thenReturn(Optional.empty());
         when(clienteRepositoryMock.isDocumentoExistente(DOCUMENTO_CLIENTE_1)).thenReturn(true);
 
@@ -210,7 +197,7 @@ class ClienteServiceTest {
         // Arrange
         ClienteRequest request = montarRequestPadrao();
 
-        when(jwtUtilMock.getSubject()).thenReturn(AUTH_USER_ID_VALIDO);
+        when(clienteAuthServiceMock.getAuthUserId()).thenReturn(AUTH_USER_ID_VALIDO);
         when(clienteRepositoryMock.findByAuthUserIdOptional(AUTH_USER_ID_VALIDO)).thenReturn(Optional.empty());
         when(clienteRepositoryMock.isDocumentoExistente(DOCUMENTO_CLIENTE_1)).thenReturn(false);
         when(clienteRepositoryMock.isEmailExistente(EMAIL_CLIENTE_NOVO)).thenReturn(true);
@@ -227,7 +214,7 @@ class ClienteServiceTest {
     void deveAtualizarCadastroCliente_quandoIdExistenteComDadosValidos() {
         ClienteRequest request = montarRequestPadrao();
         Cliente clienteExistente = montarCliente(ID_CLIENTE_1, NOME_CLIENTE_1, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_1, PERFIL_CLIENTE_1);
-        ClienteResponse clienteResponseAtualizado = montarClienteResponse(ID_CLIENTE_1, NOME_CLIENTE_NOVO, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_NOVO, PERFIL_CLIENTE_NOVO);
+        ClienteResponse clienteResponseAtualizado = montarClienteResponse(ID_CLIENTE_1, NOME_CLIENTE_NOVO, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_NOVO, PERFIL_CLIENTE_NOVO, PONTUACAO_MODERADO);
 
         when(clienteRepositoryMock.findByIdOptional(ID_CLIENTE_1)).thenReturn(Optional.of(clienteExistente));
         when(clienteRepositoryMock.isDocumentoCadastradoParaOutroCliente(DOCUMENTO_CLIENTE_1, ID_CLIENTE_1)).thenReturn(false);
@@ -291,10 +278,9 @@ class ClienteServiceTest {
     @DisplayName("Recuperar informações do cliente autenticado")
     void deveRecuperarInformacoesClienteAutenticado_quandoClienteExistir() {
         Cliente clienteExistente = montarCliente(ID_CLIENTE_1, NOME_CLIENTE_1, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_1, PERFIL_CLIENTE_1);
-        ClienteResponse clienteResponse = montarClienteResponse(ID_CLIENTE_1, NOME_CLIENTE_1, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_1, PERFIL_CLIENTE_1);
+        ClienteResponse clienteResponse = montarClienteResponse(ID_CLIENTE_1, NOME_CLIENTE_1, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_1, PERFIL_CLIENTE_1, PONTUACAO_CONSERVADOR);
 
-        when(jwtUtilMock.getSubject()).thenReturn(AUTH_USER_ID_VALIDO);
-        when(clienteRepositoryMock.findByAuthUserIdOptional(AUTH_USER_ID_VALIDO)).thenReturn(Optional.of(clienteExistente));
+        when(clienteAuthServiceMock.getClienteAutenticado()).thenReturn(clienteExistente);
         when(clienteMapperMock.toResponse(clienteExistente)).thenReturn(clienteResponse);
 
         ClienteResponse resposta = clienteServiceInjectedMock.obterClienteAutenticado();
@@ -305,20 +291,7 @@ class ClienteServiceTest {
         assertEquals(EMAIL_CLIENTE_1, resposta.email());
         assertEquals(PERFIL_CLIENTE_1.name(), resposta.perfilRisco());
 
-        verify(clienteRepositoryMock).findByAuthUserIdOptional(AUTH_USER_ID_VALIDO);
-    }
-
-    @Test
-    @DisplayName("Deve lançar ClienteAutenticadoNaoEncontradoException ao tentar recuperar informações do " +
-            "cliente autenticado sem cadastro na aplicação")
-    void deveLancarClienteAutenticadoNaoEncontradoException_quandoRecuperarClienteAutenticadoSemCadastro() {
-        when(jwtUtilMock.getSubject()).thenReturn(AUTH_USER_ID_VALIDO_SEM_CADASTRO);
-        when(clienteRepositoryMock.findByAuthUserIdOptional(AUTH_USER_ID_VALIDO_SEM_CADASTRO)).thenReturn(Optional.empty());
-
-        assertThrows(ClienteAutenticadoSemCadastroException.class,
-                () -> clienteServiceInjectedMock.obterClienteAutenticado());
-
-        verify(clienteRepositoryMock).findByAuthUserIdOptional(AUTH_USER_ID_VALIDO_SEM_CADASTRO);
+        verify(clienteAuthServiceMock).getClienteAutenticado();
     }
 
     @Test
@@ -326,10 +299,9 @@ class ClienteServiceTest {
     void deveAtualizarInformacoesClienteAutenticado_quandoDadosForemValidos() {
         ClienteRequest request = montarRequestPadrao();
         Cliente clienteExistente = montarCliente(ID_CLIENTE_1, NOME_CLIENTE_1, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_1, PERFIL_CLIENTE_1);
-        ClienteResponse clienteResponseAtualizado = montarClienteResponse(ID_CLIENTE_1, NOME_CLIENTE_NOVO, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_NOVO, PERFIL_CLIENTE_NOVO);
+        ClienteResponse clienteResponseAtualizado = montarClienteResponse(ID_CLIENTE_1, NOME_CLIENTE_NOVO, DOCUMENTO_CLIENTE_1, EMAIL_CLIENTE_NOVO, PERFIL_CLIENTE_NOVO, PONTUACAO_MODERADO);
 
-        when(jwtUtilMock.getSubject()).thenReturn(AUTH_USER_ID_VALIDO);
-        when(clienteRepositoryMock.findByAuthUserIdOptional(AUTH_USER_ID_VALIDO)).thenReturn(Optional.of(clienteExistente));
+        when(clienteAuthServiceMock.getClienteAutenticado()).thenReturn(clienteExistente);
         when(clienteRepositoryMock.isDocumentoCadastradoParaOutroCliente(DOCUMENTO_CLIENTE_1, ID_CLIENTE_1)).thenReturn(false);
         when(clienteRepositoryMock.isEmailCadastradoParaOutroCliente(EMAIL_CLIENTE_NOVO, ID_CLIENTE_1)).thenReturn(false);
         when(clienteMapperMock.toResponse(clienteExistente)).thenReturn(clienteResponseAtualizado);
@@ -346,7 +318,7 @@ class ClienteServiceTest {
     }
 
     private void mockarPreCondicoesCadastroValido(ClienteRequest request, String authUserId) {
-        when(jwtUtilMock.getSubject()).thenReturn(authUserId);
+        when(clienteAuthServiceMock.getAuthUserId()).thenReturn(authUserId);
         when(clienteRepositoryMock.findByAuthUserIdOptional(authUserId)).thenReturn(Optional.empty());
         when(clienteRepositoryMock.isDocumentoExistente(request.documento())).thenReturn(false);
         when(clienteRepositoryMock.isEmailExistente(request.email())).thenReturn(false);
@@ -371,13 +343,14 @@ class ClienteServiceTest {
         return cliente;
     }
 
-    private ClienteResponse montarClienteResponse(Long id, String nome, String documento, String email, PerfilRisco perfilRisco) {
+    private ClienteResponse montarClienteResponse(Long id, String nome, String documento, String email, PerfilRisco perfilRisco, BigDecimal pontuacao) {
         return new ClienteResponse(
                 id,
                 nome,
                 email,
                 DocumentoUtil.formatarCpfCnpj(documento),
-                perfilRisco.name()
+                perfilRisco.name(),
+                pontuacao
         );
     }
 }

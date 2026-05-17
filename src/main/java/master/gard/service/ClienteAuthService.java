@@ -41,4 +41,15 @@ public class ClienteAuthService {
                 ));
     }
 
+    public String getPreferredUsername() {
+        return jwtUtil.getPreferredUsername().orElse("N/A");
+    }
+
+    public String getEmail() {
+        return jwtUtil.getEmail().orElse("N/A");
+    }
+
+    public String getName() {
+        return jwtUtil.getName().orElse("N/A");
+    }
 }
