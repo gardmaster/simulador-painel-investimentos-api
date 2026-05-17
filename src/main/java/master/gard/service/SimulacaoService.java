@@ -10,7 +10,9 @@ import master.gard.dto.request.simulacao.SimulacaoRequest;
 import master.gard.dto.response.PageInfoResponse;
 import master.gard.dto.response.simulacao.SimulacaoPageResponse;
 import master.gard.dto.response.simulacao.SimulacaoResponse;
+import master.gard.dto.response.simulacao.SimulacaoSolicitadaResponse;
 import master.gard.mapper.simulacao.SimulacaoMapper;
+import master.gard.mapper.simulacao.SimulacaoSolicitadaMapper;
 import master.gard.model.Cliente;
 import master.gard.model.Produto;
 import master.gard.model.Simulacao;
@@ -32,16 +34,22 @@ public class SimulacaoService {
     private static final ZoneId ZONE = ZoneId.of("America/Sao_Paulo"); // escolha oficial do negócio
 
     private final SimulacaoRepository simulacaoRepository;
+    private final SimulacaoCalculoService simulacaoCalculoService;
     private final SimulacaoMapper simulacaoMapper;
     private final ClienteAuthService clienteAuthService;
     private final ProdutoRecomendacaoService produtoRecomendacaoService;
+    private final SimulacaoSolicitadaMapper simulacaoSolicitadaMapper;
 
-    public SimulacaoService(SimulacaoRepository simulacaoRepository, SimulacaoMapper simulacaoMapper,
-                            ClienteAuthService clienteAuthService, ProdutoRecomendacaoService produtoRecomendacaoService) {
+    public SimulacaoService(SimulacaoRepository simulacaoRepository, SimulacaoCalculoService simulacaoCalculoService,
+                            SimulacaoMapper simulacaoMapper, ClienteAuthService clienteAuthService,
+                            ProdutoRecomendacaoService produtoRecomendacaoService, SimulacaoSolicitadaMapper simulacaoSolicitadaMapper) {
+
         this.simulacaoRepository = simulacaoRepository;
+        this.simulacaoCalculoService = simulacaoCalculoService;
         this.simulacaoMapper = simulacaoMapper;
         this.clienteAuthService = clienteAuthService;
         this.produtoRecomendacaoService = produtoRecomendacaoService;
+        this.simulacaoSolicitadaMapper = simulacaoSolicitadaMapper;
     }
 
     @Transactional
@@ -78,7 +86,7 @@ public class SimulacaoService {
     }
 
     @Transactional
-    public SimulacaoResponse simularInvestimento(SimulacaoRequest request) {
+    public SimulacaoSolicitadaResponse simularInvestimento(SimulacaoRequest request) {
 
         LOG.infof("Simulando investimento com parâmetros: valor=%f, prazo=%d meses e tipoProduto=%s",
                 request.valor(), request.prazoMeses(), request.tipoProduto());
@@ -92,7 +100,13 @@ public class SimulacaoService {
             throw new BadRequestException("Nenhum produto encontrado para o tipo informado.");
         }
 
-        return null;
+        Simulacao simulacao = simulacaoCalculoService.calcularSimulacao(cliente, produto, request.valor(), request.prazoMeses());
+        simulacaoRepository.persist(simulacao);
+        LOG.infof("Simulação persistida com ID: %d", simulacao.getId());
+
+        //TODO: Atualizar perfil e pontuação de risco do cliente com base na simulação realizadadock
+
+        return simulacaoSolicitadaMapper.toResponse(produto, simulacao);
     }
 
 

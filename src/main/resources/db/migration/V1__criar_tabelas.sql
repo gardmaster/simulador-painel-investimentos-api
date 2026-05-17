@@ -62,6 +62,7 @@ CREATE TABLE simulacoes (
     cliente_id BIGINT NOT NULL,
     valor_investido DECIMAL(19,2) NOT NULL,
     valor_final DECIMAL(19,2) NOT NULL,
+    rentabilidade_efetiva DECIMAL(10,6) NOT NULL,
     prazo_meses INT NOT NULL,
     data_simulacao DATETIMEOFFSET(6) NOT NULL,
 
