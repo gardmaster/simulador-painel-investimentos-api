@@ -24,7 +24,7 @@ public class ForbiddenExceptionMapper extends BaseExceptionMapper
         return buildResponse(
                 Response.Status.FORBIDDEN,
                 msg.get(MessageKeys.ACESSO_NEGADO_TITLE),
-                msg.get(MessageKeys.ACESSO_NEGADO_DETAIL)
+                exception.getLocalizedMessage()
         );
 
     }

@@ -22,7 +22,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 public interface SimulacaoResourceI {
 
     @GET
-    @RolesAllowed("admin")
+    @RolesAllowed({"admin", "user"})
     @Operation(
             summary = "Listar simulações",
             description = "Retorna uma lista de simulações paginadas, permitindo filtros por data, produto e cliente."

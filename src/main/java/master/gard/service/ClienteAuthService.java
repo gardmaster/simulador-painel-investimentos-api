@@ -1,5 +1,6 @@
 package master.gard.service;
 
+import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.enterprise.context.ApplicationScoped;
 import master.gard.exception.ClienteAutenticadoSemCadastroException;
 import master.gard.model.Cliente;
@@ -14,10 +15,14 @@ public class ClienteAuthService {
 
     private final ClienteRepository clienteRepository;
     private final JwtUtil jwtUtil;
+    private final SecurityIdentity securityIdentity;
 
-    public ClienteAuthService(ClienteRepository clienteRepository, JwtUtil jwtUtil) {
+    public ClienteAuthService(ClienteRepository clienteRepository,
+                              JwtUtil jwtUtil,
+                              SecurityIdentity securityIdentity) {
         this.clienteRepository = clienteRepository;
         this.jwtUtil = jwtUtil;
+        this.securityIdentity = securityIdentity;
     }
 
     public String getAuthUserId() {
@@ -39,6 +44,10 @@ public class ClienteAuthService {
                         jwtUtil.getName().orElse("N/A"),
                         jwtUtil.getEmail().orElse("N/A")
                 ));
+    }
+
+    public boolean isAdmin() {
+        return securityIdentity.hasRole("admin");
     }
 
     public String getPreferredUsername() {

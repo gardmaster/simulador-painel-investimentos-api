@@ -20,7 +20,11 @@ public class JwtUtil {
     public String getSubject() {
         String sub = jwt.getSubject();
         if (sub == null || sub.isBlank()) {
-            throw new ClaimSubInexistenteException(getName().orElse("N/A"), getEmail().orElse("N/A"), getPreferredUsername().orElse("N/A"));
+            throw new ClaimSubInexistenteException(
+                    getName().orElse("N/A"),
+                    getEmail().orElse("N/A"),
+                    getPreferredUsername().orElse("N/A")
+            );
         }
         return sub;
     }
