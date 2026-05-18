@@ -5,16 +5,19 @@ import io.quarkus.panache.common.Page;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import master.gard.config.Messages;
 import master.gard.dto.request.cliente.ClienteFiltroRequest;
 import master.gard.dto.request.cliente.ClienteRequest;
 import master.gard.dto.response.PageInfoResponse;
 import master.gard.dto.response.cliente.ClientePageResponse;
 import master.gard.dto.response.cliente.ClienteResponse;
+import master.gard.dto.response.cliente.PerfilRiscoResponse;
 import master.gard.exception.ClienteAutenticadoJaCadastradoException;
 import master.gard.exception.ClienteNaoEncontradoException;
 import master.gard.exception.DocumentoExistenteException;
 import master.gard.exception.EmailExistenteException;
 import master.gard.mapper.cliente.ClienteMapper;
+import master.gard.mapper.cliente.PerfilRiscoMapper;
 import master.gard.model.Cliente;
 import master.gard.repository.ClienteRepository;
 import org.jboss.logging.Logger;
@@ -26,16 +29,22 @@ import java.util.Optional;
 public class ClienteService {
 
     private static final Logger LOG = Logger.getLogger(ClienteService.class);
+    private final Messages msg;
 
     private final ClienteRepository clienteRepository;
     private final ClienteMapper clienteMapper;
     private final ClienteAuthService clienteAuthService;
+    private final PerfilRiscoMapper perfilRiscoMapper;
 
     @Inject
-    public ClienteService(ClienteRepository clienteRepository, ClienteMapper clienteMapper, ClienteAuthService clienteAuthService) {
+    public ClienteService(ClienteRepository clienteRepository, ClienteMapper clienteMapper,
+                          ClienteAuthService clienteAuthService, Messages msg,
+                          PerfilRiscoMapper perfilRiscoMapper) {
         this.clienteRepository = clienteRepository;
         this.clienteMapper = clienteMapper;
         this.clienteAuthService = clienteAuthService;
+        this.msg = msg;
+        this.perfilRiscoMapper = perfilRiscoMapper;
     }
 
     @Transactional
@@ -134,6 +143,24 @@ public class ClienteService {
 
         return clienteMapper.toResponse(clienteExistente);
     }
+
+    public PerfilRiscoResponse getPerfilRiscoPorId(Long id) {
+        LOG.infof("Obtendo perfil de risco para cliente ID: %d", id);
+
+        Cliente cliente = validarClienteExistente(id);
+        LOG.infof("Cliente encontrado para perfil de risco: ID %d, Nome: %s", cliente.getId(), cliente.getNome());
+
+        if (cliente.getPerfilRisco() == null) {
+            LOG.warnf("Cliente ID %d não possui um perfil de risco definido", id);
+            return new PerfilRiscoResponse(cliente.getId(), null, null, "Perfil de risco não definido");
+        }
+
+        return perfilRiscoMapper.toResponse(cliente, msg);
+    }
+
+
+
+
 
     private void validarDocumentoCadastrado(String documento) {
         LOG.infof("Validando se documento '%s' já está cadastrado para outro cliente", documento);
