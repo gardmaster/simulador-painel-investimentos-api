@@ -12,9 +12,16 @@ public class PerfilRiscoResource implements PerfilRiscoResourceI {
     }
 
     @Override
-    public Response getPerfilRiscoById(Long id) {
+    public Response getPerfilRiscoByClienteId(Long clienteId) {
         return Response.ok()
-                .entity(clienteService.getPerfilRiscoPorId(id))
+                .entity(clienteService.getPerfilRiscoPorClienteId(clienteId))
+                .build();
+    }
+
+    @Override
+    public Response getPerfilRiscoDoClienteAutenticado() {
+        return Response.ok()
+                .entity(clienteService.getPerfilRiscoDoClienteAutenticado())
                 .build();
     }
 }
