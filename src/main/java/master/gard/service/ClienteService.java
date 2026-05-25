@@ -144,7 +144,7 @@ public class ClienteService {
         return clienteMapper.toResponse(clienteExistente);
     }
 
-    public PerfilRiscoResponse getPerfilRiscoPorId(Long id) {
+    public PerfilRiscoResponse getPerfilRiscoPorClienteId(Long id) {
         LOG.infof("Obtendo perfil de risco para cliente ID: %d", id);
 
         Cliente cliente = validarClienteExistente(id);

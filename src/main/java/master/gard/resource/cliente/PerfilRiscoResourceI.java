@@ -19,7 +19,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 public interface PerfilRiscoResourceI {
 
     @GET
-    @Path("{id}")
+    @Path("{clienteId}")
     @RolesAllowed("admin")
     @Operation(
             summary = "Obter perfil de risco por ID",
@@ -33,9 +33,9 @@ public interface PerfilRiscoResourceI {
                     schema = @Schema(implementation = PerfilRiscoResponse.class)
             )
     )
-    Response getPerfilRiscoById(
+    Response getPerfilRiscoByClienteId(
             @Parameter(description = "ID do cliente para o qual o perfil de risco será obtido", required = true, example = "3")
-            @PathParam("id") Long id
+            @PathParam("clienteId") Long clienteId
     );
 
 }

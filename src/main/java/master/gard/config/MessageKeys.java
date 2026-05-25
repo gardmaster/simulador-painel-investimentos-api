@@ -45,4 +45,9 @@ public final class MessageKeys {
 
     public static final String ERRO_PRODUTO_NAO_VALIDADO_SIMULACAO_TITLE = "error.produto-nao-validado-para-simulacao.title";
     public static final String ERRO_PRODUTO_NAO_VALIDADO_SIMULACAO_DETAIL = "error.produto-nao-validado-para-simulacao.detail";
+
+    public static final String PERFIL_RISCO_CONSERVADOR = "perfilrisco.CONSERVADOR.descricao";
+    public static final String PERFIL_RISCO_MODERADO = "perfilrisco.MODERADO.descricao";
+    public static final String PERFIL_RISCO_AGRESSIVO = "perfilrisco.AGRESSIVO.descricao";
+    public static final String PERFIL_RISCO_NAO_DEFINIDO = "default.perfilrisco.descricao.nao-definido";
 }

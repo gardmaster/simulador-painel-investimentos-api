@@ -1,5 +1,6 @@
 package master.gard.mapper.cliente;
 
+import master.gard.config.MessageKeys;
 import master.gard.config.Messages;
 import master.gard.dto.response.cliente.PerfilRiscoResponse;
 import master.gard.mapper.MapStructConfig;
@@ -22,8 +23,8 @@ public interface PerfilRiscoMapper {
     @Named("perfilToDescricao")
     default String perfilToDescricao(PerfilRisco perfil, @Context Messages msg) {
         if (perfil == null) {
-            return msg.get("default.perfilrisco.descricao.nao-definido");
+            return msg.get(MessageKeys.PERFIL_RISCO_NAO_DEFINIDO);
         }
-        return msg.get(perfil.getDescricaoKey());
+        return msg.get(perfil.getMessageKeyDescricao());
     }
 }
