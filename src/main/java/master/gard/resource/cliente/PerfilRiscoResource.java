@@ -17,4 +17,11 @@ public class PerfilRiscoResource implements PerfilRiscoResourceI {
                 .entity(clienteService.getPerfilRiscoPorClienteId(clienteId))
                 .build();
     }
+
+    @Override
+    public Response getPerfilRiscoDoClienteAutenticado() {
+        return Response.ok()
+                .entity(clienteService.getPerfilRiscoDoClienteAutenticado())
+                .build();
+    }
 }

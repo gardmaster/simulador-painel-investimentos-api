@@ -33,9 +33,27 @@ public interface PerfilRiscoResourceI {
                     schema = @Schema(implementation = PerfilRiscoResponse.class)
             )
     )
+    @APIResponse(ref = "NotFoundCliente")
     Response getPerfilRiscoByClienteId(
             @Parameter(description = "ID do cliente para o qual o perfil de risco será obtido", required = true, example = "3")
             @PathParam("clienteId") Long clienteId
     );
 
+    @GET
+    @Path("/me")
+    @RolesAllowed({"admin", "user"})
+    @Operation(
+            summary = "Obter perfil de risco do cliente autenticado",
+            description = "Retorna os detalhes do perfil de risco do cliente atualmente autenticado."
+    )
+    @APIResponse(
+            responseCode = "200",
+            description = "Perfil de risco do cliente autenticado encontrado e retornado com sucesso",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = PerfilRiscoResponse.class)
+            )
+    )
+    @APIResponse(ref = "NotFoundCliente")
+    Response getPerfilRiscoDoClienteAutenticado();
 }

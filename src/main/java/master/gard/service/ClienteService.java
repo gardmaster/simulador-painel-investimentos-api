@@ -144,6 +144,7 @@ public class ClienteService {
         return clienteMapper.toResponse(clienteExistente);
     }
 
+    @Transactional
     public PerfilRiscoResponse getPerfilRiscoPorClienteId(Long id) {
         LOG.infof("Obtendo perfil de risco para cliente ID: %d", id);
 
@@ -152,12 +153,26 @@ public class ClienteService {
 
         if (cliente.getPerfilRisco() == null) {
             LOG.warnf("Cliente ID %d não possui um perfil de risco definido", id);
-            return new PerfilRiscoResponse(cliente.getId(), null, null, "Perfil de risco não definido");
+            return perfilRiscoMapper.toResponse(null, msg);
         }
 
         return perfilRiscoMapper.toResponse(cliente, msg);
     }
 
+    @Transactional
+    public PerfilRiscoResponse getPerfilRiscoDoClienteAutenticado() {
+        LOG.info("Obtendo perfil de risco do cliente autenticado");
+
+        Cliente cliente = clienteAuthService.getClienteAutenticado();
+        LOG.infof("Cliente autenticado encontrado para perfil de risco: ID %d, Nome: %s", cliente.getId(), cliente.getNome());
+
+        if (cliente.getPerfilRisco() == null) {
+            LOG.warnf("Cliente autenticado ID %d não possui um perfil de risco definido", cliente.getId());
+            return perfilRiscoMapper.toResponse(null, msg);
+        }
+
+        return perfilRiscoMapper.toResponse(cliente, msg);
+    }
 
 
 
